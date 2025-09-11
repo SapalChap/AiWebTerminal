@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #fff !important;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            height: 100vh;
+        }
+
+        .terminal {
+            height: 100vh;
+            padding: 20px;
+            background: #000;
+        }
+
+        .cursor {
+            background-color: #fff;
+            animation: blink 1s infinite;
+            width: 8px;
+            height: 16px;
+            display: inline-block;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div>AI Web Terminal v1.0.0 : A minimal AI chatbot.</div>
+        <div>Copyright (c) 2025 AI Web Terminal. All rights reserved.</div>
+        <br>
+        <div>System initialized successfully.</div>
+        <div>Welcome to AI Minimal Terminal!</div>
+        <div>Type !AIModel [model] to choose a model. Available models include. gpt 4.0, claude 3.5</div>
+        <div>Type !Documentation for documentation</div>
+        <div id="output"></div>
+        <div>
+            <span>user@aiwebterminal:~$ </span>
+            <input type="text" id="command-input" style="background: transparent; border: none; color: #fff; font-family: 'Courier New', monospace; font-size: 14px; outline: none;">
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('command-input');
+        
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = input.value;
+                
+                // Add command to output
+                const commandLine = document.createElement('div');
+                commandLine.textContent = `user@aiwebterminal:~$ ${command}`;
+                output.appendChild(commandLine);
+                
+                // Add "hello world" response
+                const responseLine = document.createElement('div');
+                responseLine.textContent = 'hello world';
+                output.appendChild(responseLine);
+                
+                // Clear input
+                input.value = '';
+            }
+        });
+
+        // Keep input focused
+        input.focus();
+    </script>
+</body>
+</html>
