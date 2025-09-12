@@ -40,6 +40,11 @@
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0; }
         }
+
+        /* Loading indicator for when request is processing */
+        .loading {
+            color: #888 !important;
+        }
     </style>
 </head>
 <body>
@@ -62,27 +67,74 @@
         const output = document.getElementById('output');
         const input = document.getElementById('command-input');
         
-        input.addEventListener('keydown', (e) => {
+        // Function to send command to Flask backend
+        async function executeCommand(command) {
+            try {
+                const response = await fetch('/execute_command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ command: command })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    return data.response;
+                } else {
+                    return 'Error: Command execution failed';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                return 'Error: Failed to communicate with server';
+            }
+        }
+        
+        // Handle Enter key press
+        input.addEventListener('keydown', async (e) => {
             if (e.key === 'Enter') {
-                const command = input.value;
+                const command = input.value.trim();
+                
+                if (command === '') return;
                 
                 // Add command to output
                 const commandLine = document.createElement('div');
                 commandLine.textContent = `user@aiwebterminal:~$ ${command}`;
                 output.appendChild(commandLine);
                 
-                // Add "hello world" response
+                // Show loading indicator
+                const loadingLine = document.createElement('div');
+                loadingLine.textContent = 'Processing...';
+                loadingLine.className = 'loading';
+                output.appendChild(loadingLine);
+                
+                // Clear input immediately
+                input.value = '';
+                
+                // Execute command via Flask backend
+                const response = await executeCommand(command);
+                
+                // Remove loading indicator
+                output.removeChild(loadingLine);
+                
+                // Add response to output
                 const responseLine = document.createElement('div');
-                responseLine.textContent = 'hello world';
+                responseLine.textContent = response;
                 output.appendChild(responseLine);
                 
-                // Clear input
-                input.value = '';
+                // Scroll to bottom
+                output.scrollTop = output.scrollHeight;
             }
         });
 
         // Keep input focused
         input.focus();
+        
+        // Refocus input when clicking anywhere on terminal
+        document.addEventListener('click', () => {
+            input.focus();
+        });
     </script>
 </body>
 </html>
