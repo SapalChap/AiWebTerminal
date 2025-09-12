@@ -14,9 +14,9 @@ def execute_command():
 
     data = request.get_json()
     command = data.get('command', '')
-    
+    model = data.get('model', 'deepseek')
     # Simple response - just return "hello world" for any command
-    response = get_ai_response(command)
+    response = get_ai_response(command, model)
     
     return jsonify({
         'success': True,

@@ -45,6 +45,11 @@
         .loading {
             color: #888 !important;
         }
+
+        .response-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
@@ -54,12 +59,12 @@
         <br>
         <div>System initialized successfully.</div>
         <div>Welcome to AI Minimal Terminal!</div>
-        <div>Type !AIModel [model] to choose a model. Available models include. gpt 4.0, claude 3.5</div>
+        <div>Type !AIModel [model] to choose a model. Available models include. deepseek, llama, gemini</div>
         <div>Type !Documentation for documentation</div>
         <div id="output"></div>
         <div>
             <span>user@aiwebterminal:~$ </span>
-            <input type="text" id="command-input" style="background: transparent; border: none; color: #fff; font-family: 'Courier New', monospace; font-size: 14px; outline: none;">
+            <input type="text" id="command-input" style="background: transparent; border: none; color: #fff; font-family: 'Courier New', monospace; font-size: 14px; outline: none; width: 80%;">
         </div>
     </div>
 
@@ -121,6 +126,7 @@
                 // Add response to output
                 const responseLine = document.createElement('div');
                 responseLine.textContent = response;
+                responseLine.style.whiteSpace = 'pre-wrap'; // Preserve spaces and line breaks
                 output.appendChild(responseLine);
                 
                 // Scroll to bottom
