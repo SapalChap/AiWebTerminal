@@ -62,9 +62,9 @@
         <div>Welcome to AI Minimal Terminal!</div>
         <div>Type !help for available commands</div>
         <div id="output"></div>
-        <div>
-            <span>user@aiwebterminal:~$ </span>
-            <input type="text" id="command-input" style="background: transparent; border: none; color: #fff; font-family: 'Courier New', monospace; font-size: 14px; outline: none; width: 80%;">
+        <div style="display: flex; align-items: center; flex-wrap: nowrap;">
+            <span style="white-space: nowrap; margin-right: 5px;">user@aiwebterminal:~$ </span>
+            <input type="text" id="command-input" style="background: transparent; border: none; color: #fff; font-family: 'Courier New', monospace; font-size: 14px; outline: none; flex: 1; min-width: 200px;">
         </div>
     </div>
 
@@ -102,14 +102,14 @@
             }
             
             // Handle clear command
-            if (cmd === '!cls') {
+            if (cmd === '!clear') {
                 output.innerHTML = ''; // Clear all chat history
                 lastResponse = ''; // Clear last response too
                 return 'Chat history cleared.';
             }
             
             // Handle copy command
-            if (cmd === '!cp') {
+            if (cmd === '!copy') {
                 if (lastResponse) {
                     // Copy to clipboard using the Clipboard API
                     navigator.clipboard.writeText(lastResponse).then(() => {
@@ -174,6 +174,11 @@ Just type your message to chat with the AI!`;
                 }, 1000);
                 
                 return 'Thanks for using AI Web Terminal! Closing...';
+            }
+            
+            // Check if command starts with ! but is not a valid command
+            if (cmd.startsWith('!')) {
+                return 'Not a valid command. Type !help for documentation.';
             }
             
             return null; // Not a special command
@@ -251,7 +256,7 @@ Just type your message to chat with the AI!`;
                 } else {
                     // Show loading indicator for AI requests
                     const loadingLine = document.createElement('div');
-                    loadingLine.textContent = 'Processing... (type !stop to cancel)';
+                    loadingLine.textContent = 'Processing...';
                     loadingLine.className = 'loading';
                     output.appendChild(loadingLine);
                     

@@ -3,7 +3,7 @@ from config import OPENROUTER_API_KEY
 
 # Model mapping dictionary - easy to add/modify models
 MODEL_MAPPING = {
-    "deepseek": "deepseek/deepseek-r1-0528:free",
+    "deepseek": "deepseek/deepseek-chat-v3.1:free",
     "llama": "meta-llama/llama-3.3-70b-instruct:free",
     "gemini": "google/gemini-2.0-flash-exp:free",
     # Add more models here as needed:
