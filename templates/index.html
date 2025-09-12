@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal</title>
+    <title>AI Web Terminal</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <style>
         * {
             margin: 0;
@@ -128,11 +129,11 @@
 
 !help - Show this help message
 
-!AIModel [model] - Switch AI model (deepseek, llama, gemini)
+!aimodel [model] - Switch AI model (deepseek, llama, gemini). Ex: !aimodel deepseek
 
-!cls - Clear chat history
+!clear - Clear chat history
 
-!cp - Copy last response to clipboard
+!copy - Copy last response to clipboard
 
 !stop - Stop current AI processing
 
