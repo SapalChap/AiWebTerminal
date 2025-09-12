@@ -59,10 +59,7 @@
         <br>
         <div>System initialized successfully.</div>
         <div>Welcome to AI Minimal Terminal!</div>
-        <div>Type !AIModel [model] to choose a model. Available models include. deepseek, llama, gemini</div>
-        <div>Type !ls to clear chat history</div>
-        <div>Type !cp to copy last response to clipboard</div>
-        <div>Type !Documentation for documentation</div>
+        <div>Type !help for available commands</div>
         <div id="output"></div>
         <div>
             <span>user@aiwebterminal:~$ </span>
@@ -79,6 +76,10 @@
         
         // Track last AI response for copying
         let lastResponse = '';
+        
+        // Track ongoing request for cancellation
+        let currentAbortController = null;
+        let isProcessing = false;
         
         // Function to handle special commands (model switching, clear, etc.)
         function handleSpecialCommand(command) {
@@ -100,7 +101,7 @@
             }
             
             // Handle clear command
-            if (cmd === '!ls') {
+            if (cmd === '!cls') {
                 output.innerHTML = ''; // Clear all chat history
                 lastResponse = ''; // Clear last response too
                 return 'Chat history cleared.';
@@ -121,12 +122,69 @@
                 }
             }
             
+            // Handle help command
+            if (cmd === '!help') {
+                const helpText = `Available Commands:
+
+!help - Show this help message
+
+!AIModel [model] - Switch AI model (deepseek, llama, gemini)
+
+!cls - Clear chat history
+
+!cp - Copy last response to clipboard
+
+!stop - Stop current AI processing
+
+!exit - Exit the terminal
+
+
+Just type your message to chat with the AI!`;
+                return helpText;
+            }
+            
+            // Handle stop command
+            if (cmd === '!stop') {
+                if (isProcessing && currentAbortController) {
+                    currentAbortController.abort();
+                    currentAbortController = null;
+                    isProcessing = false;
+                    return 'Processing stopped.';
+                } else {
+                    return 'No active processing to stop.';
+                }
+            }
+            
+            // Handle exit command
+            if (cmd === '!exit') {
+                // Show goodbye message first
+                setTimeout(() => {
+                    // Try to close the window/tab
+                    window.close();
+                    
+                    // If window.close() doesn't work (due to browser restrictions),
+                    // show alternative instructions
+                    setTimeout(() => {
+                        const exitMessage = document.createElement('div');
+                        exitMessage.textContent = 'Auto window close was blocked by your browser. Please close this browser tab manually (Ctrl+W or click the X button). Thank you for using AI Web Terminal!';
+                        exitMessage.style.color = '#ff6666';
+                        output.appendChild(exitMessage);
+                    }, 500);
+                }, 1000);
+                
+                return 'Thanks for using AI Web Terminal! Closing...';
+            }
+            
             return null; // Not a special command
         }
         
         // Function to send command to Flask backend
         async function executeCommand(command) {
             try {
+                // Create new AbortController for this request
+                currentAbortController = new AbortController();
+                isProcessing = true;
+                
                 const response = await fetch('/execute_command', {
                     method: 'POST',
                     headers: {
@@ -135,10 +193,15 @@
                     body: JSON.stringify({ 
                         command: command,
                         model: currentModel  // Send current model to Flask
-                    })
+                    }),
+                    signal: currentAbortController.signal  // Add abort signal
                 });
                 
                 const data = await response.json();
+                
+                // Reset processing state
+                isProcessing = false;
+                currentAbortController = null;
                 
                 if (data.success) {
                     return data.response;
@@ -146,6 +209,14 @@
                     return 'Error: Command execution failed';
                 }
             } catch (error) {
+                // Reset processing state
+                isProcessing = false;
+                currentAbortController = null;
+                
+                if (error.name === 'AbortError') {
+                    return 'Request was cancelled.';
+                }
+                
                 console.error('Error:', error);
                 return 'Error: Failed to communicate with server';
             }
@@ -174,28 +245,44 @@
                     const responseLine = document.createElement('div');
                     responseLine.textContent = specialResponse;
                     responseLine.style.color = '#00ff00'; // Green color for system messages
+                    responseLine.style.whiteSpace = 'pre-wrap'; // Preserve line breaks and formatting
                     output.appendChild(responseLine);
                 } else {
                     // Show loading indicator for AI requests
                     const loadingLine = document.createElement('div');
-                    loadingLine.textContent = 'Processing...';
+                    loadingLine.textContent = 'Processing... (type !stop to cancel)';
                     loadingLine.className = 'loading';
                     output.appendChild(loadingLine);
                     
-                    // Execute command via Flask backend
-                    const response = await executeCommand(command);
-                    
-                    // Store response for copying
-                    lastResponse = response;
-                    
-                    // Remove loading indicator
-                    output.removeChild(loadingLine);
-                    
-                    // Add response to output
-                    const responseLine = document.createElement('div');
-                    responseLine.textContent = response;
-                    responseLine.style.whiteSpace = 'pre-wrap'; // Preserve formatting
-                    output.appendChild(responseLine);
+                    try {
+                        // Execute command via Flask backend
+                        const response = await executeCommand(command);
+                        
+                        // Store response for copying
+                        lastResponse = response;
+                        
+                        // Remove loading indicator if it still exists
+                        if (loadingLine.parentNode) {
+                            output.removeChild(loadingLine);
+                        }
+                        
+                        // Add response to output
+                        const responseLine = document.createElement('div');
+                        responseLine.textContent = response;
+                        responseLine.style.whiteSpace = 'pre-wrap'; // Preserve formatting
+                        output.appendChild(responseLine);
+                    } catch (error) {
+                        // Remove loading indicator if it still exists
+                        if (loadingLine.parentNode) {
+                            output.removeChild(loadingLine);
+                        }
+                        
+                        // Show error message
+                        const errorLine = document.createElement('div');
+                        errorLine.textContent = 'Request was cancelled or failed.';
+                        errorLine.style.color = '#ff6666';
+                        output.appendChild(errorLine);
+                    }
                 }
                 
                 // Scroll to bottom

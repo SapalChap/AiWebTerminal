@@ -13,7 +13,7 @@ def index():
 def execute_command():
     """
     Handle terminal command execution via AJAX POST request
-    Now supports model parameter from frontend
+    supports model parameter from frontend
     """
     data = request.get_json()
     command = data.get('command', '')
