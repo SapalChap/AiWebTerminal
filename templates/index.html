@@ -61,6 +61,7 @@
         <div>Welcome to AI Minimal Terminal!</div>
         <div>Type !AIModel [model] to choose a model. Available models include. deepseek, llama, gemini</div>
         <div>Type !ls to clear chat history</div>
+        <div>Type !cp to copy last response to clipboard</div>
         <div>Type !Documentation for documentation</div>
         <div id="output"></div>
         <div>
@@ -75,6 +76,9 @@
         
         // Track current AI model (default to deepseek)
         let currentModel = 'deepseek';
+        
+        // Track last AI response for copying
+        let lastResponse = '';
         
         // Function to handle special commands (model switching, clear, etc.)
         function handleSpecialCommand(command) {
@@ -98,7 +102,23 @@
             // Handle clear command
             if (cmd === '!ls') {
                 output.innerHTML = ''; // Clear all chat history
+                lastResponse = ''; // Clear last response too
                 return 'Chat history cleared.';
+            }
+            
+            // Handle copy command
+            if (cmd === '!cp') {
+                if (lastResponse) {
+                    // Copy to clipboard using the Clipboard API
+                    navigator.clipboard.writeText(lastResponse).then(() => {
+                        // Success handled by return statement below
+                    }).catch(err => {
+                        console.error('Failed to copy to clipboard:', err);
+                    });
+                    return 'Last response copied to clipboard! (Ctrl+V to paste)';
+                } else {
+                    return 'No response to copy. Send a message first.';
+                }
             }
             
             return null; // Not a special command
@@ -164,6 +184,9 @@
                     
                     // Execute command via Flask backend
                     const response = await executeCommand(command);
+                    
+                    // Store response for copying
+                    lastResponse = response;
                     
                     // Remove loading indicator
                     output.removeChild(loadingLine);
