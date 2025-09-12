@@ -11,16 +11,21 @@ def index():
 
 @app.route('/execute_command', methods=['POST'])
 def execute_command():
-
+    """
+    Handle terminal command execution via AJAX POST request
+    Now supports model parameter from frontend
+    """
     data = request.get_json()
     command = data.get('command', '')
-    model = data.get('model', 'deepseek')
-    # Simple response - just return "hello world" for any command
+    model = data.get('model', 'deepseek')  # Get model from frontend
+    
+    # Process the command with the specified model
     response = get_ai_response(command, model)
     
     return jsonify({
         'success': True,
-        'response': response
+        'response': response,
+        'model_used': model  # Optional: return which model was used
     })
 
 if __name__ == '__main__':

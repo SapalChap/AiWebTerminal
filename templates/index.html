@@ -60,6 +60,7 @@
         <div>System initialized successfully.</div>
         <div>Welcome to AI Minimal Terminal!</div>
         <div>Type !AIModel [model] to choose a model. Available models include. deepseek, llama, gemini</div>
+        <div>Type !ls to clear chat history</div>
         <div>Type !Documentation for documentation</div>
         <div id="output"></div>
         <div>
@@ -72,6 +73,37 @@
         const output = document.getElementById('output');
         const input = document.getElementById('command-input');
         
+        // Track current AI model (default to deepseek)
+        let currentModel = 'deepseek';
+        
+        // Function to handle special commands (model switching, clear, etc.)
+        function handleSpecialCommand(command) {
+            const cmd = command.toLowerCase();
+            
+            // Handle model switching
+            if (cmd.startsWith('!aimodel ')) {
+                const modelName = cmd.split(' ')[1];
+                
+                // Check if it's a valid model
+                const validModels = ['deepseek', 'llama', 'gemini'];
+                
+                if (validModels.includes(modelName)) {
+                    currentModel = modelName;
+                    return `Model switched to: ${modelName}`;
+                } else {
+                    return `Invalid model. Available models: ${validModels.join(', ')}`;
+                }
+            }
+            
+            // Handle clear command
+            if (cmd === '!ls') {
+                output.innerHTML = ''; // Clear all chat history
+                return 'Chat history cleared.';
+            }
+            
+            return null; // Not a special command
+        }
+        
         // Function to send command to Flask backend
         async function executeCommand(command) {
             try {
@@ -80,7 +112,10 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ command: command })
+                    body: JSON.stringify({ 
+                        command: command,
+                        model: currentModel  // Send current model to Flask
+                    })
                 });
                 
                 const data = await response.json();
@@ -108,26 +143,37 @@
                 commandLine.textContent = `user@aiwebterminal:~$ ${command}`;
                 output.appendChild(commandLine);
                 
-                // Show loading indicator
-                const loadingLine = document.createElement('div');
-                loadingLine.textContent = 'Processing...';
-                loadingLine.className = 'loading';
-                output.appendChild(loadingLine);
-                
-                // Clear input immediately
+                // Clear input immediately after capturing command
                 input.value = '';
                 
-                // Execute command via Flask backend
-                const response = await executeCommand(command);
+                // Check if it's a special command (model switching, clear, etc.)
+                const specialResponse = handleSpecialCommand(command);
                 
-                // Remove loading indicator
-                output.removeChild(loadingLine);
-                
-                // Add response to output
-                const responseLine = document.createElement('div');
-                responseLine.textContent = response;
-                responseLine.style.whiteSpace = 'pre-wrap'; // Preserve spaces and line breaks
-                output.appendChild(responseLine);
+                if (specialResponse) {
+                    // Handle special commands locally
+                    const responseLine = document.createElement('div');
+                    responseLine.textContent = specialResponse;
+                    responseLine.style.color = '#00ff00'; // Green color for system messages
+                    output.appendChild(responseLine);
+                } else {
+                    // Show loading indicator for AI requests
+                    const loadingLine = document.createElement('div');
+                    loadingLine.textContent = 'Processing...';
+                    loadingLine.className = 'loading';
+                    output.appendChild(loadingLine);
+                    
+                    // Execute command via Flask backend
+                    const response = await executeCommand(command);
+                    
+                    // Remove loading indicator
+                    output.removeChild(loadingLine);
+                    
+                    // Add response to output
+                    const responseLine = document.createElement('div');
+                    responseLine.textContent = response;
+                    responseLine.style.whiteSpace = 'pre-wrap'; // Preserve formatting
+                    output.appendChild(responseLine);
+                }
                 
                 // Scroll to bottom
                 output.scrollTop = output.scrollHeight;
