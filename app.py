@@ -29,4 +29,4 @@ def execute_command():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)  # Changed to debug=True for development
+    app.run(host = '0.0.0.0', port = 5000) 
