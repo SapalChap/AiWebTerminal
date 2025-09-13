@@ -1,6 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 from ai_model import get_ai_response
-from config import secret_key
+
+try:
+    from config import secret_key
+except ImportError:
+    import os
+    secret_key = os.environ.get("SECRET_KEY")
 
 app = Flask(__name__)
 app.secret_key = secret_key

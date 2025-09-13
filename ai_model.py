@@ -1,5 +1,10 @@
 from openai import OpenAI
-from config import OPENROUTER_API_KEY
+
+try:
+  from config import OPENROUTER_API_KEY
+except ImportError:
+  import os
+  OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 # Model mapping dictionary - easy to add/modify models
 MODEL_MAPPING = {
