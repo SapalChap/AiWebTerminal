@@ -1,0 +1,7 @@
+# AI Web Terminal Dependencies
+# Web Framework
+Flask>=2.3.0,<3.0.0
+
+# AI API Integration  
+openai>=1.0.0,<2.0.0
+
