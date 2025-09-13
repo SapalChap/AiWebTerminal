@@ -1,6 +1,9 @@
 # AI Web Terminal
 
-A minimalist web-based AI chat interface designed for users who prefer keyboard-driven interactions over traditional GUI chatbots. Switch between AI models, manage conversations, and interact with AI assistants using simple terminal commands.
+A minimalist web-based AI coding chat interface designed for users who prefer keyboard-driven interactions over traditional GUI chatbots. Switch between AI models, manage conversations, and interact with AI assistants using simple terminal commands.
+
+Targetted at developers
+
 
 ## Overview
 
