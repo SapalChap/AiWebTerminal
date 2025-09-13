@@ -31,6 +31,9 @@ Where <n> is a sequential number starting from 1.
 -Act like a professional - speak in a professional manner. No emojis.
 -Speak in English only. 
 
+
+-Always start your response with "Start AI Response --- " and end with " --- End AI Response"
+
 """
 
 

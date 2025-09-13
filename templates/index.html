@@ -111,6 +111,18 @@
             return count;
         }
         
+        // Function to handle stop processing (shared by !stop command and Ctrl+C)
+        function stopProcessing() {
+            if (isProcessing && currentAbortController) {
+                currentAbortController.abort();
+                currentAbortController = null;
+                isProcessing = false;
+                return 'Processing stopped.';
+            } else {
+                return 'No active processing to stop.';
+            }
+        }
+        
         // Function to handle special commands (model switching, clear, etc.)
         function handleSpecialCommand(command) {
             const cmd = command.toLowerCase();
@@ -189,6 +201,103 @@
                 }
             }
             
+            // Handle privacy policy command
+            if (cmd === '!privacypolicy') {
+                const privacyText = `PRIVACY POLICY - AI Web Terminal
+
+Effective Date: September 2025
+
+1. INFORMATION WE COLLECT
+• User Input: Text commands and messages you type
+• Technical Data: Browser info, IP address (temporary)
+• We DO NOT collect: Names, emails, accounts, files, location
+
+2. HOW WE USE YOUR INFORMATION
+• Your messages sent to AI providers (OpenRouter API) for responses
+• No permanent storage on our servers
+• Session data cleared when browser closes
+
+3. DATA SHARING
+• Messages shared with OpenRouter API and AI models (DeepSeek, Llama, Gemini)
+• No sharing with advertisers, marketers, or data brokers
+• Review OpenRouter's privacy policy at https://openrouter.ai
+
+4. DATA STORAGE
+• Conversations exist only in browser session
+• Use !clear to delete history anytime
+• No server-side conversation storage
+
+5. SECURITY
+• HTTPS encryption for all communications
+• No user authentication required
+• API keys secured server-side
+
+6. YOUR RIGHTS
+• Delete: Use !clear command
+• Stop: Use !stop or Ctrl+C
+• Exit: Use !exit command
+• No accounts = no account data to manage
+
+7. CONTACT
+For privacy questions, contact: sapalcdev@gmail.com
+
+Type any key to continue or use !clear to return to terminal.`;
+                return privacyText;
+            }
+            
+            // Handle terms of use command
+            if (cmd === '!termsofuse') {
+                const termsText = `TERMS OF USE - AI Web Terminal
+
+Effective Date: September 2025
+
+1. ACCEPTANCE
+By using AI Web Terminal, you agree to these terms.
+
+2. SERVICE DESCRIPTION
+Free, minimalist web interface for AI conversations with terminal commands.
+
+3. ACCEPTABLE USE
+✓ PERMITTED: General questions, programming help, education, creative writing
+✗ PROHIBITED: Illegal content, harassment, system attacks, spam, malicious code
+
+4. SERVICE AVAILABILITY
+• Provided "as-is" without uptime guarantees
+• Subject to OpenRouter API rate limits
+• Free tier models may have restrictions
+
+5. USER RESPONSIBILITIES
+• You're responsible for your input messages
+• Comply with all applicable laws
+• Respect third-party AI provider terms
+
+6. THIRD-PARTY SERVICES
+• Relies on OpenRouter and connected AI models
+• Subject to their terms of service
+• We're not responsible for third-party issues
+
+7. DISCLAIMERS
+• AI responses may contain errors - verify important information
+• No warranties provided
+• Service provided "as-is"
+
+8. LIMITATION OF LIABILITY
+• Not liable for AI response accuracy
+• Not liable for service interruptions
+• Maximum liability: $0 (free service)
+
+9. PRIVACY
+• No permanent data storage
+• Session-based operation only
+• See !privacypolicy for details
+
+10. CONTACT
+Questions: sapalcdev@gmail.com
+
+Type any key to continue or use !clear to return to terminal.`;
+                return termsText;
+            }
+            
             // Handle help command
             if (cmd === '!help') {
                 const helpText = `Available Commands:
@@ -203,7 +312,13 @@
 
 !cc[n] - Copy code block n to clipboard. Ex: !cc1, !cc2
 
-!stop - Stop current AI processing
+!stop - Stop current AI processing 
+or 
+CTRL + C (Cmd + C on Mac) - Also stops AI processing 
+
+!privacypolicy - View privacy policy
+
+!termsofuse - View terms of use
 
 !exit - Exit the terminal
 
@@ -217,14 +332,7 @@ Just type your message to chat with the AI!`;
             
             // Handle stop command
             if (cmd === '!stop') {
-                if (isProcessing && currentAbortController) {
-                    currentAbortController.abort();
-                    currentAbortController = null;
-                    isProcessing = false;
-                    return 'Processing stopped.';
-                } else {
-                    return 'No active processing to stop.';
-                }
+                return stopProcessing();
             }
             
             // Handle exit command
@@ -373,6 +481,30 @@ Just type your message to chat with the AI!`;
         // Refocus input when clicking anywhere on terminal
         document.addEventListener('click', () => {
             input.focus();
+        });
+
+        // Handle Ctrl+C keypress globally to stop processing
+        document.addEventListener('keydown', (e) => {
+            // Check for Ctrl+C (or Cmd+C on Mac)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+                // Only intercept Ctrl+C if we're currently processing AI request
+                if (isProcessing) {
+                    e.preventDefault(); // Prevent default copy behavior
+                    
+                    // Stop the processing
+                    const stopMessage = stopProcessing();
+                    
+                    // Display the stop message in terminal
+                    const responseLine = document.createElement('div');
+                    responseLine.textContent = stopMessage;
+                    responseLine.style.color = '#ff6666'; // Red color for interruption
+                    output.appendChild(responseLine);
+                    
+                    // Scroll to bottom
+                    output.scrollTop = output.scrollHeight;
+                }
+                // If not processing, let Ctrl+C work normally (copy to clipboard)
+            }
         });
     </script>
 </body>
