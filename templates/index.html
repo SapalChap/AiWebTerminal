@@ -82,6 +82,35 @@
         let currentAbortController = null;
         let isProcessing = false;
         
+        // Global code block counter (increments when user copies code)
+        let globalCodeBlockCounter = 0;
+
+        // Function to extract specific code block from response
+        function extractCodeBlock(responseText, blockNumber) {
+            const regex = /```[\w\s]*:\s*code block (\d+) start\n([\s\S]*?)\n``` code block \1 end/g;
+            let match;
+            let currentBlock = 0;
+            
+            while ((match = regex.exec(responseText)) !== null) {
+                currentBlock++;
+                if (currentBlock === blockNumber) {
+                    return match[2]; // Return the code content
+                }
+            }
+            
+            return null; // Block not found
+        }
+
+        // Function to count total code blocks in response
+        function countCodeBlocks(responseText) {
+            const regex = /```[\w\s]*:\s*code block (\d+) start\n([\s\S]*?)\n``` code block \1 end/g;
+            let count = 0;
+            while (regex.exec(responseText) !== null) {
+                count++;
+            }
+            return count;
+        }
+        
         // Function to handle special commands (model switching, clear, etc.)
         function handleSpecialCommand(command) {
             const cmd = command.toLowerCase();
@@ -123,6 +152,43 @@
                 }
             }
             
+            // Handle copy code command
+            if (cmd.startsWith('!cc')) {
+                const blockNumStr = cmd.replace('!cc', '');
+                const blockNum = parseInt(blockNumStr);
+                
+                if (isNaN(blockNum) || blockNum < 1) {
+                    return 'Invalid format. Use !cc1, !cc2, etc.';
+                }
+                
+                if (!lastResponse) {
+                    return 'No AI response to extract code from.';
+                }
+                
+                const codeContent = extractCodeBlock(lastResponse, blockNum);
+                
+                if (codeContent) {
+                    // Copy to clipboard
+                    navigator.clipboard.writeText(codeContent).then(() => {
+                        // Success handled by return statement below
+                    }).catch(err => {
+                        console.error('Failed to copy code to clipboard:', err);
+                    });
+                    
+                    // Increment global counter only when successfully copying
+                    globalCodeBlockCounter++;
+                    
+                    return `Code block ${blockNum} copied to clipboard! (Global copy #${globalCodeBlockCounter})`;
+                } else {
+                    const totalBlocks = countCodeBlocks(lastResponse);
+                    if (totalBlocks === 0) {
+                        return 'AI Web Terminal didn\'t find any code blocks.';
+                    } else {
+                        return `Code block ${blockNum} not found. Available blocks: 1-${totalBlocks}`;
+                    }
+                }
+            }
+            
             // Handle help command
             if (cmd === '!help') {
                 const helpText = `Available Commands:
@@ -134,6 +200,8 @@
 !clear - Clear chat history
 
 !copy - Copy last response to clipboard
+
+!cc[n] - Copy code block n to clipboard. Ex: !cc1, !cc2
 
 !stop - Stop current AI processing
 

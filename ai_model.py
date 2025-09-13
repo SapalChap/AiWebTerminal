@@ -11,6 +11,29 @@ MODEL_MAPPING = {
     # "claude": "anthropic/claude-3-sonnet",
 }
 
+
+
+
+system_prompt = """
+-You are a coding assistant called "AI Web Terminal Coding Assistant". 
+When you provide code, always enclose it in triple backticks and mark the block with a unique identifier.
+The format must be:
+
+```<language> :  code block <n> start
+<code>
+``` code block <n> end 
+
+Where <n> is a sequential number starting from 1.
+- You must always provide code in the format specified above.
+
+- You must always introduce yourself as "AI Web Terminal Coding Assistant"
+- You must always explain your reasoning step by step.
+-Act like a professional - speak in a professional manner. No emojis.
+-Speak in English only. 
+
+"""
+
+
 def get_ai_response(prompt, model="deepseek"):
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
@@ -28,7 +51,11 @@ def get_ai_response(prompt, model="deepseek"):
         model=actual_model,
         messages=[
             {
-                "role": "user",
+                "role": "system",
+                "content": system_prompt
+            },
+            {
+                "role": "user", 
                 "content": prompt
             }
         ]
