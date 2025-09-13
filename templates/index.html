@@ -55,7 +55,7 @@
 </head>
 <body>
     <div class="terminal">
-        <div>AI Web Terminal v1.0.0 : A minimal AI chatbot.</div>
+        <div>AI Web Terminal v1.1.0 : A minimal AI chatbot.</div>
         <div>Copyright (c) 2025 AI Web Terminal. All rights reserved.</div>
         <br>
         <div>System initialized successfully.</div>
@@ -328,6 +328,14 @@ Created by SapalChap
 
 Just type your message to chat with the AI!`;
                 return helpText;
+            }
+
+            if (cmd === '!viewupdatehistory') {
+                const updateHistory = `
+1.1.0 - Made it so the web app deploys on gunicorn
+      - Added update history command
+1.0.0 - Initial release`;
+                return updateHistory;
             }
             
             // Handle stop command
