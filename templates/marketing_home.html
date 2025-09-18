@@ -574,10 +574,22 @@
         <div id="register" class="page {% if page == 'register' %}active{% endif %}">
             <div class="auth-container">
                 <div class="container">
-                    <form class="auth-form" onsubmit="handleRegister(event)">
+                    <form class="auth-form" method="POST" action="{{ url_for('register') }}" onsubmit="return handleRegister(event)">
                         <h2>Get Started</h2>
+                        
+                        {% if error %}
+                        <div style="background: #ff4444; color: white; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; text-align: center;">
+                            {{ error }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if success %}
+                        <div style="background: #44ff44; color: black; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; text-align: center;">
+                            {{ success }}
+                        </div>
+                        {% endif %}
                         <div class="form-group">
-                            <label for="registerName">Full Name</label>
+                            <label for="registerName">UserName</label>
                             <input type="text" id="registerName" name="name" required>
                         </div>
                         <div class="form-group">
@@ -587,6 +599,16 @@
                         <div class="form-group">
                             <label for="registerPassword">Password</label>
                             <input type="password" id="registerPassword" name="password" required>
+                            <div style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">
+                                Password must contain:
+                                <ul style="margin: 0.25rem 0; padding-left: 1rem;">
+                                    <li>At least 8 characters</li>
+                                    <li>One uppercase letter (A-Z)</li>
+                                    <li>One lowercase letter (a-z)</li>
+                                    <li>One number (0-9)</li>
+                                    <li>One special character (!@#$%^&*()_+-=[]{}|;:,.<>?)</li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="confirmPassword">Confirm Password</label>
@@ -801,22 +823,17 @@
         }
 
         function handleRegister(event) {
-            event.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
             if (password !== confirmPassword) {
+                event.preventDefault();
                 alert('Passwords do not match');
-                return;
+                return false;
             }
             
-            // Here you would implement actual registration logic
-            alert('Registration functionality would be implemented here.\nName: ' + name + '\nEmail: ' + email);
-            
-            // After successful registration, you might redirect to login or terminal
-            // window.location.href = "{{ url_for('login') }}";
+            // Form will submit to Flask backend automatically
+            return true;
         }
 
         // Smooth scrolling for anchor links
