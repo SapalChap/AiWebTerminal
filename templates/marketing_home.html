@@ -462,24 +462,24 @@
 <body>
     <header>
         <nav class="container">
-            <a class="logo" onclick="showPage('about')">AI Web Terminal</a>
+            <a class="logo" href="{{ url_for('marketing_home') }}">AI Web Terminal</a>
             <ul class="nav-links">
             </ul>
             <div class="auth-buttons">
-                <a class="btn btn-primary" onclick="showPage('register')">Get Started</a>
+                <a class="btn btn-primary" href="{{ url_for('register') }}">Get Started</a>
             </div>
         </nav>
     </header>
 
     <main>
         <!-- About Page -->
-        <div id="about" class="page active">
+        <div id="about" class="page {% if page == 'about' %}active{% endif %}">
             <section class="hero">
                 <div class="container">
                     <h1 class="terminal-title">Minimal AI Chat Terminal</h1>
                     <p>Experience the future of AI interaction with our clean, terminal-style interface. Chat with multiple AI models in a familiar command-line environment.</p>
                     <div class="cta-buttons">
-                        <a class="btn btn-white btn-large" onclick="launchTerminal()">Launch Terminal</a>
+                        <a class="btn btn-white btn-large" href="{{ url_for('terminal') }}">Launch Terminal</a>
                         <a class="btn btn-outline btn-large" href="#features">Learn More</a>
                     </div>
                 </div>
@@ -547,7 +547,7 @@
         </div>
 
         <!-- Login Page -->
-        <div id="login" class="page">
+        <div id="login" class="page {% if page == 'login' %}active{% endif %}">
             <div class="auth-container">
                 <div class="container">
                     <form class="auth-form" onsubmit="handleLogin(event)">
@@ -563,7 +563,7 @@
                         <button type="submit" class="btn btn-primary form-submit btn-large">Sign In</button>
                         <div class="form-footer">
                             <p><a href="#" onclick="alert('Password reset would be implemented here')">Forgot your password?</a></p>
-                            <p>Don't have an account? <a onclick="showPage('register')">Sign up</a></p>
+                            <p>Don't have an account? <a href="{{ url_for('register') }}">Sign up</a></p>
                         </div>
                     </form>
                 </div>
@@ -571,7 +571,7 @@
         </div>
 
         <!-- Register Page -->
-        <div id="register" class="page">
+        <div id="register" class="page {% if page == 'register' %}active{% endif %}">
             <div class="auth-container">
                 <div class="container">
                     <form class="auth-form" onsubmit="handleRegister(event)">
@@ -594,7 +594,7 @@
                         </div>
                         <button type="submit" class="btn btn-primary form-submit btn-large">Create Account</button>
                         <div class="form-footer">
-                            <p>Already have an account? <a onclick="showPage('login')">Sign in</a></p>
+                            <p>Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
                         </div>
                     </form>
                 </div>
@@ -602,7 +602,7 @@
         </div>
 
         <!-- Privacy Policy Page -->
-        <div id="privacy" class="page">
+        <div id="privacy" class="page {% if page == 'privacy' %}active{% endif %}">
             <div class="auth-container">
                 <div class="container">
                     <div class="auth-form" style="max-width: 800px;">
@@ -653,14 +653,14 @@
                             <h3 style="color: #ffffff;">8. CONTACT</h3>
                             <p>For privacy questions, contact: <a href="mailto:sapalcdev@gmail.com" style="color: #ffffff;">sapalcdev@gmail.com</a></p>
                         </div>
-                        <button class="btn btn-primary" onclick="showPage('about')" style="margin-top: 2rem;">Back to Home</button>
+                        <a class="btn btn-primary" href="{{ url_for('marketing_home') }}" style="margin-top: 2rem; text-decoration: none; display: inline-block;">Back to Home</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Terms of Use Page -->
-        <div id="terms" class="page">
+        <div id="terms" class="page {% if page == 'terms' %}active{% endif %}">
             <div class="auth-container">
                 <div class="container">
                     <div class="auth-form" style="max-width: 800px;">
@@ -711,14 +711,14 @@
                             <h3 style="color: #ffffff;">10. CONTACT</h3>
                             <p>Questions: <a href="mailto:sapalcdev@gmail.com" style="color: #ffffff;">sapalcdev@gmail.com</a></p>
                         </div>
-                        <button class="btn btn-primary" onclick="showPage('about')" style="margin-top: 2rem;">Back to Home</button>
+                        <a class="btn btn-primary" href="{{ url_for('marketing_home') }}" style="margin-top: 2rem; text-decoration: none; display: inline-block;">Back to Home</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Contact Page -->
-        <div id="contact" class="page">
+        <div id="contact" class="page {% if page == 'contact' %}active{% endif %}">
             <div class="auth-container">
                 <div class="container">
                     <div class="auth-form" style="max-width: 600px;">
@@ -763,7 +763,7 @@
                         
                         <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
                             <a href="mailto:sapalcdev@gmail.com" class="btn btn-primary">Send Email</a>
-                            <button class="btn btn-secondary" onclick="showPage('about')" style="background: #333; color: #fff; border-color: #555;">Back to Home</button>
+                            <a class="btn btn-secondary" href="{{ url_for('marketing_home') }}" style="background: #333; color: #fff; border-color: #555; text-decoration: none;">Back to Home</a>
                         </div>
                     </div>
                 </div>
@@ -774,9 +774,9 @@
     <footer>
         <div class="container">
             <div class="footer-links">
-                <a href="#" onclick="showPage('privacy')">Privacy Policy</a>
-                <a href="#" onclick="showPage('terms')">Terms of Use</a>
-                <a href="#" onclick="showPage('contact')">Contact</a>
+                <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+                <a href="{{ url_for('terms') }}">Terms of Use</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
             </div>
             <div class="footer-info">
                 <p>AI Web Terminal v1.1.0 - A minimal AI chatbot</p>
@@ -787,37 +787,6 @@
     </footer>
 
     <script>
-        function showPage(pageName) {
-            // Hide all pages
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(page => page.classList.remove('active'));
-            
-            // Show selected page
-            const targetPage = document.getElementById(pageName);
-            if (targetPage) {
-                targetPage.classList.add('active');
-            }
-            
-            // Update nav links
-            const navLinks = document.querySelectorAll('.nav-links a');
-            navLinks.forEach(link => link.classList.remove('active'));
-            
-            // Set active nav link (if exists)
-            const activeLink = document.querySelector(`[onclick="showPage('${pageName}')"]`);
-            if (activeLink && activeLink.closest('.nav-links')) {
-                activeLink.classList.add('active');
-            }
-            
-            // Scroll to top
-            window.scrollTo(0, 0);
-        }
-
-        function launchTerminal() {
-            // This would redirect to your actual terminal app
-            // For now, just show an alert
-            alert('This would launch your AI Web Terminal app! Replace this with your terminal URL.');
-            // window.open('/terminal', '_blank'); // Uncomment when you have the terminal route
-        }
 
         function handleLogin(event) {
             event.preventDefault();
@@ -828,7 +797,7 @@
             alert('Login functionality would be implemented here.\nEmail: ' + email);
             
             // After successful login, you might redirect to the terminal
-            // launchTerminal();
+            // window.location.href = "{{ url_for('terminal') }}";
         }
 
         function handleRegister(event) {
@@ -847,7 +816,7 @@
             alert('Registration functionality would be implemented here.\nName: ' + name + '\nEmail: ' + email);
             
             // After successful registration, you might redirect to login or terminal
-            // showPage('login');
+            // window.location.href = "{{ url_for('login') }}";
         }
 
         // Smooth scrolling for anchor links
@@ -866,8 +835,8 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            // Ensure about page is shown by default
-            showPage('about');
+            // Page is now controlled by Flask template logic
+            // No need to manually show pages
         });
     </script>
 </body>
