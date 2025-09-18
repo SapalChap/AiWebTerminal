@@ -3,7 +3,6 @@ from ai_model import get_ai_response
 from supabase import create_client, Client
 import os
 
-
 try:
     from config import secret_key
     from config import SUPABASE_URL
@@ -28,6 +27,34 @@ if SUPABASE_URL and SUPABASE_KEY:
 else:
     print("Supabase credentials not found, running without database")
 
+def validate_registration_data(username, email, password, confirm_password):
+    """Validate registration form data and return error message if invalid"""
+    # Basic validation
+    if not username or not email or not password:
+        return 'All fields are required.'
+    
+    if password != confirm_password:
+        return 'Passwords do not match.'
+    
+    # Enhanced password validation
+    if len(password) < 8:
+        return 'Password must be at least 8 characters long.'
+    
+    if not any(c.isupper() for c in password):
+        return 'Password must contain at least one uppercase letter.'
+    
+    if not any(c.islower() for c in password):
+        return 'Password must contain at least one lowercase letter.'
+    
+    if not any(c.isdigit() for c in password):
+        return 'Password must contain at least one number.'
+    
+    special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+    if not any(c in special_chars for c in password):
+        return 'Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?).'
+    
+    return None  # No validation errors
+
 # Marketing/Landing page routes
 @app.route('/')
 def marketing_home():
@@ -45,78 +72,48 @@ def login():
 def register():
     if request.method == 'POST':
         # Get form data
-        name = request.form.get('name', '').strip()
+        username = request.form.get('name', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
         confirm_password = request.form.get('confirmPassword', '')
         
-        # Basic validation
-        if not name or not email or not password:
+        # Check if Supabase is available first
+        if supabase is None:
             return render_template('marketing_home.html', page='register', 
-                                 error='All fields are required.')
+                                 error='Database not available. Please contact support.')
         
-        if password != confirm_password:
+        # Validate input data
+        validation_error = validate_registration_data(username, email, password, confirm_password)
+        if validation_error:
+            return render_template('marketing_home.html', page='register', error=validation_error)
+        
+        try:
+            # Register user with Supabase Auth
+            auth_response = supabase.auth.sign_up({
+                "email": email,
+                "password": password
+            })
+
+            if auth_response.user is None:
+                return render_template('marketing_home.html', page='register', 
+                                     error='Registration failed: User is None')
+
+            # Create user profile in database
+            profile_response = supabase.table("profiles").insert({
+                "id": auth_response.user.id,
+                "name": username,
+                "email": email
+            }).execute()
+
             return render_template('marketing_home.html', page='register', 
-                                 error='Passwords do not match.')
-        
-        # Enhanced password validation
-        if len(password) < 8:
+                                 success='Registration successful! You can now use the terminal. Please login using !login')
+
+        except Exception as e:
             return render_template('marketing_home.html', page='register', 
-                                 error='Password must be at least 8 characters long.')
-        
-        # Check for uppercase letter
-        if not any(c.isupper() for c in password):
-            return render_template('marketing_home.html', page='register', 
-                                 error='Password must contain at least one uppercase letter.')
-        
-        # Check for lowercase letter
-        if not any(c.islower() for c in password):
-            return render_template('marketing_home.html', page='register', 
-                                 error='Password must contain at least one lowercase letter.')
-        
-        # Check for digit
-        if not any(c.isdigit() for c in password):
-            return render_template('marketing_home.html', page='register', 
-                                 error='Password must contain at least one number.')
-        
-        # Check for special character
-        special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-        if not any(c in special_chars for c in password):
-            return render_template('marketing_home.html', page='register', 
-                                 error='Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?).')
-
-
-
-        
-
-
-        
-
-
-
-
-
-
-        
-        # Here you would typically:
-        # 1. Check if email already exists
-        # 2. Hash the password
-        # 3. Store user in database
-        # 4. Send confirmation email
-        # 5. Log the user in
-        
-        # For now, just print the data and show success message
-        print(f"Registration data received:")
-        print(f"  Name: {name}")
-        print(f"  Email: {email}")
-        print(f"  Password: {'*' * len(password)}")
-        
-        # Return success message
-        return render_template('marketing_home.html', page='register', 
-                             success='Registration successful! You can now use the terminal.')
-    
-    # GET request - show registration form
-    return render_template('marketing_home.html', page='register')
+                                 error=f'Registration failed: {str(e)}')
+    else:
+        # GET request - show registration form
+        return render_template('marketing_home.html', page='register')
 
 @app.route('/privacy')
 def privacy():
@@ -160,4 +157,4 @@ def execute_command():
 
 
 if __name__ == '__main__':
-    app.run(port=5001) 
+    app.run(port=5001)
