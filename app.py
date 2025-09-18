@@ -78,6 +78,7 @@ def register():
         confirm_password = request.form.get('confirmPassword', '')
         
         # Check if Supabase is available first
+        #TODO fix later
         if supabase is None:
             return render_template('marketing_home.html', page='register', 
                                  error='Database not available. Please contact support.')
@@ -106,7 +107,7 @@ def register():
             }).execute()
 
             return render_template('marketing_home.html', page='register', 
-                                 success='Registration successful! You can now use the terminal. Please login using !login')
+                                 success='Registration successful! You can now use the terminal. An email confirmation has been sent. Once confirmed, you can login using !login')
 
         except Exception as e:
             return render_template('marketing_home.html', page='register', 
