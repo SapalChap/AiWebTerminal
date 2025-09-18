@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Web Terminal - Minimal AI Chat Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            color: #ffffff;
+            background: #000000;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        header {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333333;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #ffffff;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #00ff00;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background: #00cc00;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid #333333;
+        }
+
+        .btn-secondary:hover {
+            background: #333333;
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        /* Main Content */
+        main {
+            margin-top: 80px;
+        }
+
+        .page {
+            display: none;
+            min-height: calc(100vh - 80px);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            background: #000000;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid #333333;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            position: relative;
+            z-index: 2;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .terminal-title {
+            overflow: hidden;
+            border-right: 2px solid #ffffff;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 1s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #ffffff }
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 12px;
+        }
+
+        .btn-white {
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #ffffff;
+        }
+
+        .btn-white:hover {
+            background: transparent;
+            color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+
+        .btn-outline:hover {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 0;
+            background: #000000;
+            border-top: 1px solid #333333;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border-radius: 8px;
+            background: #111111;
+            border: 1px solid #333333;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: #333333;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .feature-card p {
+            color: #cccccc;
+        }
+
+        /* Terminal Preview */
+        .terminal-preview {
+            background: #000;
+            color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            margin: 2rem 0;
+            position: relative;
+            border: 1px solid #333;
+        }
+
+        .terminal-line {
+            margin: 0.5rem 0;
+        }
+
+        .cursor-blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Auth Forms */
+        .auth-container {
+            padding: 6rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+        }
+
+        .auth-form {
+            background: #111111;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #333333;
+        }
+
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            font-weight: 500;
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #333333;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #000000;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            background: #111111;
+        }
+
+        .form-submit {
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-footer {
+            text-align: center;
+        }
+
+        .form-footer p {
+            color: #cccccc;
+            margin-bottom: 1rem;
+        }
+
+        .form-footer a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background: #000000;
+            border-top: 1px solid #333333;
+            padding: 2rem 0;
+            text-align: center;
+            color: #cccccc;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-info {
+            margin-top: 1rem;
+            color: #888888;
+        }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .auth-form {
+                padding: 2rem;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a class="logo" onclick="showPage('about')">AI Web Terminal</a>
+            <ul class="nav-links">
+            </ul>
+            <div class="auth-buttons">
+                <a class="btn btn-primary" onclick="showPage('register')">Get Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- About Page -->
+        <div id="about" class="page active">
+            <section class="hero">
+                <div class="container">
+                    <h1 class="terminal-title">Minimal AI Chat Terminal</h1>
+                    <p>Experience the future of AI interaction with our clean, terminal-style interface. Chat with multiple AI models in a familiar command-line environment.</p>
+                    <div class="cta-buttons">
+                        <a class="btn btn-white btn-large" onclick="launchTerminal()">Launch Terminal</a>
+                        <a class="btn btn-outline btn-large" href="#features">Learn More</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features" id="features">
+                <div class="container">
+                    <h2>Why Choose AI Web Terminal?</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🖥️</div>
+                            <h3>Terminal Experience</h3>
+                            <p>Familiar command-line interface for developers and power users who prefer keyboard-driven interactions with AI.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🤖</div>
+                            <h3>Multiple AI Models</h3>
+                            <p>Switch between DeepSeek, Llama, and Gemini models with simple commands. Choose the best AI for your task.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <h3>Fast & Lightweight</h3>
+                            <p>Minimal interface with maximum performance. No bloated UI, just pure AI interaction at terminal speed.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">💾</div>
+                            <h3>Code Block Management</h3>
+                            <p>Easily copy code snippets with numbered commands. Perfect for developers working with AI-generated code.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🔒</div>
+                            <h3>No Local Data Storage</h3>
+                            <p>Session-based operation with no permanent storage on our servers. Note: Messages are sent to AI providers (OpenRouter/AI models) - see privacy policy for details.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⌨️</div>
+                            <h3>Keyboard Shortcuts</h3>
+                            <p>Ctrl+C to stop processing, built-in commands, and intuitive keyboard navigation for efficiency.</p>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin: 4rem 0 2rem 0;">
+                        <h3 style="color: #ffffff; font-family: 'Courier New', monospace; margin-bottom: 1rem;">Live Terminal Preview</h3>
+                        <p style="color: #cccccc; margin-bottom: 1rem;">See how the AI Web Terminal works with real commands and responses:</p>
+                    </div>
+
+                    <div class="terminal-preview">
+                        <div style="background: #333; padding: 0.5rem 1rem; margin: -2rem -2rem 1rem -2rem; border-bottom: 1px solid #555; color: #ffffff; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span>🖥️ DEMO - AI Web Terminal v1.1.0</span>
+                            <span style="color: #cccccc; font-size: 0.8rem;">● Terminal Preview</span>
+                        </div>
+                        <div class="terminal-line">AI Web Terminal v1.1.0 : A minimal AI chatbot.</div>
+                        <div class="terminal-line">System initialized successfully.</div>
+                        <div class="terminal-line">Welcome to AI Minimal Terminal!</div>
+                        <div class="terminal-line">Type !help for available commands</div>
+                        <br>
+                        <div class="terminal-line">user@aiwebterminal:~$ !aimodel deepseek</div>
+                        <div class="terminal-line" style="color: #ffffff;">Model switched to: deepseek</div>
+                        <div class="terminal-line">user@aiwebterminal:~$ hello world</div>
+                        <div class="terminal-line">Hello! I'm your AI assistant running on DeepSeek. How can I help you today?</div>
+                        <div class="terminal-line">user@aiwebterminal:~$ <span class="cursor-blink">█</span></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login" class="page">
+            <div class="auth-container">
+                <div class="container">
+                    <form class="auth-form" onsubmit="handleLogin(event)">
+                        <h2>Welcome Back</h2>
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary form-submit btn-large">Sign In</button>
+                        <div class="form-footer">
+                            <p><a href="#" onclick="alert('Password reset would be implemented here')">Forgot your password?</a></p>
+                            <p>Don't have an account? <a onclick="showPage('register')">Sign up</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="register" class="page">
+            <div class="auth-container">
+                <div class="container">
+                    <form class="auth-form" onsubmit="handleRegister(event)">
+                        <h2>Get Started</h2>
+                        <div class="form-group">
+                            <label for="registerName">Full Name</label>
+                            <input type="text" id="registerName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerEmail">Email Address</label>
+                            <input type="email" id="registerEmail" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary form-submit btn-large">Create Account</button>
+                        <div class="form-footer">
+                            <p>Already have an account? <a onclick="showPage('login')">Sign in</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Policy Page -->
+        <div id="privacy" class="page">
+            <div class="auth-container">
+                <div class="container">
+                    <div class="auth-form" style="max-width: 800px;">
+                        <h2>Privacy Policy</h2>
+                        <div style="text-align: left; color: #cccccc; line-height: 1.6;">
+                            <p><strong>Effective Date: September 2025</strong></p>
+                            <br>
+                            <h3 style="color: #ffffff;">1. INFORMATION WE COLLECT</h3>
+                            <p>• User Input: Text commands and messages you type</p>
+                            <p>• Technical Data: Browser info, IP address (temporary)</p>
+                            <p>• We DO NOT collect: Names, emails, accounts, files, location</p>
+                            <br>
+                            <h3 style="color: #ffffff;">2. HOW WE USE YOUR INFORMATION</h3>
+                            <p>• Your messages sent to AI providers (OpenRouter API) for responses</p>
+                            <p>• No permanent storage on our servers</p>
+                            <p>• Session data cleared when browser closes</p>
+                            <br>
+                            <h3 style="color: #ffffff;">3. DATA SHARING</h3>
+                            <p>• Messages shared with OpenRouter API and AI models (DeepSeek, Llama, Gemini)</p>
+                            <p>• <strong>Important:</strong> We cannot control how third-party AI providers handle your data</p>
+                            <p>• No sharing with advertisers, marketers, or data brokers by us</p>
+                            <p>• Review OpenRouter's privacy policy at <a href="https://openrouter.ai" style="color: #ffffff;">https://openrouter.ai</a></p>
+                            <p>• Review individual AI model provider policies for complete data handling information</p>
+                            <br>
+                            <h3 style="color: #ffffff;">4. DATA STORAGE</h3>
+                            <p>• Conversations exist only in browser session</p>
+                            <p>• Use !clear to delete history anytime</p>
+                            <p>• No server-side conversation storage</p>
+                            <br>
+                            <h3 style="color: #ffffff;">5. SECURITY</h3>
+                            <p>• HTTPS encryption for all communications</p>
+                            <p>• No user authentication required</p>
+                            <p>• API keys secured server-side</p>
+                            <br>
+                            <h3 style="color: #ffffff;">6. YOUR RIGHTS</h3>
+                            <p>• Delete: Use !clear command</p>
+                            <p>• Stop: Use !stop or Ctrl+C</p>
+                            <p>• Exit: Use !exit command</p>
+                            <p>• No accounts = no account data to manage</p>
+                            <br>
+                            <h3 style="color: #ffffff;">7. THIRD-PARTY DATA HANDLING</h3>
+                            <p>• <strong>Important Disclaimer:</strong> Your messages are processed by third-party AI services</p>
+                            <p>• We do not control how OpenRouter or AI model providers use your data</p>
+                            <p>• Each AI provider may have different data retention and usage policies</p>
+                            <p>• We recommend reviewing their privacy policies before use</p>
+                            <p>• Consider the sensitivity of information you share in conversations</p>
+                            <br>
+                            <h3 style="color: #ffffff;">8. CONTACT</h3>
+                            <p>For privacy questions, contact: <a href="mailto:sapalcdev@gmail.com" style="color: #ffffff;">sapalcdev@gmail.com</a></p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showPage('about')" style="margin-top: 2rem;">Back to Home</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terms of Use Page -->
+        <div id="terms" class="page">
+            <div class="auth-container">
+                <div class="container">
+                    <div class="auth-form" style="max-width: 800px;">
+                        <h2>Terms of Use</h2>
+                        <div style="text-align: left; color: #cccccc; line-height: 1.6;">
+                            <p><strong>Effective Date: September 2025</strong></p>
+                            <br>
+                            <h3 style="color: #ffffff;">1. ACCEPTANCE</h3>
+                            <p>By using AI Web Terminal, you agree to these terms.</p>
+                            <br>
+                            <h3 style="color: #ffffff;">2. SERVICE DESCRIPTION</h3>
+                            <p>Free, minimalist web interface for AI conversations with terminal commands.</p>
+                            <br>
+                            <h3 style="color: #ffffff;">3. ACCEPTABLE USE</h3>
+                            <p>✓ PERMITTED: General questions, programming help, education, creative writing</p>
+                            <p>✗ PROHIBITED: Illegal content, harassment, system attacks, spam, malicious code</p>
+                            <br>
+                            <h3 style="color: #ffffff;">4. SERVICE AVAILABILITY</h3>
+                            <p>• Provided "as-is" without uptime guarantees</p>
+                            <p>• Subject to OpenRouter API rate limits</p>
+                            <p>• Free tier models may have restrictions</p>
+                            <br>
+                            <h3 style="color: #ffffff;">5. USER RESPONSIBILITIES</h3>
+                            <p>• You're responsible for your input messages</p>
+                            <p>• Comply with all applicable laws</p>
+                            <p>• Respect third-party AI provider terms</p>
+                            <br>
+                            <h3 style="color: #ffffff;">6. THIRD-PARTY SERVICES</h3>
+                            <p>• Relies on OpenRouter and connected AI models</p>
+                            <p>• Subject to their terms of service</p>
+                            <p>• We're not responsible for third-party issues</p>
+                            <br>
+                            <h3 style="color: #ffffff;">7. DISCLAIMERS</h3>
+                            <p>• AI responses may contain errors - verify important information</p>
+                            <p>• No warranties provided</p>
+                            <p>• Service provided "as-is"</p>
+                            <br>
+                            <h3 style="color: #ffffff;">8. LIMITATION OF LIABILITY</h3>
+                            <p>• Not liable for AI response accuracy</p>
+                            <p>• Not liable for service interruptions</p>
+                            <p>• Maximum liability: $0 (free service)</p>
+                            <br>
+                            <h3 style="color: #ffffff;">9. PRIVACY</h3>
+                            <p>• No permanent data storage</p>
+                            <p>• Session-based operation only</p>
+                            <p>• See Privacy Policy for details</p>
+                            <br>
+                            <h3 style="color: #ffffff;">10. CONTACT</h3>
+                            <p>Questions: <a href="mailto:sapalcdev@gmail.com" style="color: #ffffff;">sapalcdev@gmail.com</a></p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showPage('about')" style="margin-top: 2rem;">Back to Home</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div id="contact" class="page">
+            <div class="auth-container">
+                <div class="container">
+                    <div class="auth-form" style="max-width: 600px;">
+                        <h2>Contact Us</h2>
+                        <div style="text-align: left; color: #cccccc; line-height: 1.6;">
+                            <h3 style="color: #ffffff;">Get in Touch</h3>
+                            <p>We'd love to hear from you! Whether you have questions, feedback, or feature requests, feel free to reach out.</p>
+                            <br>
+                            
+                            <h3 style="color: #ffffff;">Email</h3>
+                            <p>For all inquiries, please email us at:</p>
+                            <p><a href="mailto:sapalcdev@gmail.com" style="color: #ffffff; font-size: 1.1rem; font-weight: bold;">sapalcdev@gmail.com</a></p>
+                            <br>
+                            
+                            <h3 style="color: #ffffff;">What to Contact Us About</h3>
+                            <p>• Feature requests and suggestions</p>
+                            <p>• Technical support and bug reports</p>
+                            <p>• Privacy and data questions</p>
+                            <p>• Partnership inquiries</p>
+                            <p>• General feedback</p>
+                            <br>
+                            
+                            <h3 style="color: #ffffff;">Response Time</h3>
+                            <p>We typically respond to all inquiries within 24-48 hours. For urgent technical issues, please include "URGENT" in your subject line.</p>
+                            <br>
+                            
+                            <h3 style="color: #ffffff;">Creator</h3>
+                            <p>AI Web Terminal is created and maintained by <strong>SapalChap</strong>. We're passionate about creating minimalist, efficient tools for developers and AI enthusiasts.</p>
+                            <br>
+                            
+                            <div style="background: #111111; padding: 1.5rem; border-radius: 8px; border: 1px solid #333;">
+                                <h4 style="color: #ffffff; margin-bottom: 1rem;">Terminal-Style Contact</h4>
+                                <div style="font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                                    <div>user@aiwebterminal:~$ !contact</div>
+                                    <div style="color: #ffffff; margin-top: 0.5rem;">Opening email client...</div>
+                                    <div style="color: #ffffff; margin-top: 0.5rem;">To: sapalcdev@gmail.com</div>
+                                    <div style="color: #ffffff; margin-top: 0.5rem;">Subject: [Your subject here]</div>
+                                    <div style="color: #ffffff; margin-top: 0.5rem;">Ready to send your message!</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                            <a href="mailto:sapalcdev@gmail.com" class="btn btn-primary">Send Email</a>
+                            <button class="btn btn-secondary" onclick="showPage('about')" style="background: #333; color: #fff; border-color: #555;">Back to Home</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#" onclick="showPage('privacy')">Privacy Policy</a>
+                <a href="#" onclick="showPage('terms')">Terms of Use</a>
+                <a href="#" onclick="showPage('contact')">Contact</a>
+            </div>
+            <div class="footer-info">
+                <p>AI Web Terminal v1.1.0 - A minimal AI chatbot</p>
+                <p>Copyright © 2025 AI Web Terminal. All rights reserved.</p>
+                <p>Created by SapalChap</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function showPage(pageName) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Show selected page
+            const targetPage = document.getElementById(pageName);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // Update nav links
+            const navLinks = document.querySelectorAll('.nav-links a');
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // Set active nav link (if exists)
+            const activeLink = document.querySelector(`[onclick="showPage('${pageName}')"]`);
+            if (activeLink && activeLink.closest('.nav-links')) {
+                activeLink.classList.add('active');
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function launchTerminal() {
+            // This would redirect to your actual terminal app
+            // For now, just show an alert
+            alert('This would launch your AI Web Terminal app! Replace this with your terminal URL.');
+            // window.open('/terminal', '_blank'); // Uncomment when you have the terminal route
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Here you would implement actual login logic
+            alert('Login functionality would be implemented here.\nEmail: ' + email);
+            
+            // After successful login, you might redirect to the terminal
+            // launchTerminal();
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // Here you would implement actual registration logic
+            alert('Registration functionality would be implemented here.\nName: ' + name + '\nEmail: ' + email);
+            
+            // After successful registration, you might redirect to login or terminal
+            // showPage('login');
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]:not([href="#"])').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure about page is shown by default
+            showPage('about');
+        });
+    </script>
+</body>
+</html>
