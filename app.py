@@ -64,9 +64,6 @@ def marketing_home():
 def home():
     return redirect(url_for('marketing_home'))
 
-@app.route('/login')
-def login():
-    return render_template('marketing_home.html', page='login')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

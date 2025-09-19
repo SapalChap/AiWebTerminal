@@ -546,29 +546,6 @@
             </section>
         </div>
 
-        <!-- Login Page -->
-        <div id="login" class="page {% if page == 'login' %}active{% endif %}">
-            <div class="auth-container">
-                <div class="container">
-                    <form class="auth-form" onsubmit="handleLogin(event)">
-                        <h2>Welcome Back</h2>
-                        <div class="form-group">
-                            <label for="loginEmail">Email Address</label>
-                            <input type="email" id="loginEmail" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary form-submit btn-large">Sign In</button>
-                        <div class="form-footer">
-                            <p><a href="#" onclick="alert('Password reset would be implemented here')">Forgot your password?</a></p>
-                            <p>Don't have an account? <a href="{{ url_for('register') }}">Sign up</a></p>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
 
         <!-- Register Page -->
         <div id="register" class="page {% if page == 'register' %}active{% endif %}">
@@ -614,9 +591,12 @@
                             <label for="confirmPassword">Confirm Password</label>
                             <input type="password" id="confirmPassword" name="confirmPassword" required>
                         </div>
-                        <button type="submit" class="btn btn-primary form-submit btn-large">Create Account</button>
+                        <button type="submit" class="btn btn-primary form-submit btn-large" style="text-align: center; width: 100%; display: flex; align-items: center; justify-content: center;">
+                            Create Account
+                        </button>
                         <div class="form-footer">
-                            <p>Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+                            <p>Already have an account? Login using !login on the terminal</p>
+                           <p> <a href="{{ url_for('terminal') }}"> Go to the terminal</a> </p> 
                         </div>
                     </form>
                 </div>
@@ -810,17 +790,6 @@
 
     <script>
 
-        function handleLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            // Here you would implement actual login logic
-            alert('Login functionality would be implemented here.\nEmail: ' + email);
-            
-            // After successful login, you might redirect to the terminal
-            // window.location.href = "{{ url_for('terminal') }}";
-        }
 
         function handleRegister(event) {
             const password = document.getElementById('registerPassword').value;
