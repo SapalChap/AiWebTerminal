@@ -64,7 +64,6 @@ def marketing_home():
 def home():
     return redirect(url_for('marketing_home'))
 
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -129,6 +128,69 @@ def contact():
 @app.route('/terminal')
 def terminal():
     return render_template('index.html')
+
+@app.route('/login_user', methods=['POST'])
+def login_user():
+    """
+    Handle user login via terminal command
+    """
+    if supabase is None:
+        return jsonify({
+            'success': False,
+            'error': 'Database not available. Please contact support.'
+        })
+    
+    try:
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        
+        if not username or not password:
+            return jsonify({
+                'success': False,
+                'error': 'Username and password are required.'
+            })
+        
+        # First, try to find the user by username in the profiles table
+        profile_response = supabase.table("profiles").select("email").eq("name", username).execute()
+        
+        if not profile_response.data:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid username or password.'
+            })
+        
+        user_email = profile_response.data[0]['email']
+        
+        # Now authenticate with Supabase Auth using email and password
+        auth_response = supabase.auth.sign_in_with_password({
+            "email": user_email,
+            "password": password
+        })
+        
+        if auth_response.user:
+            # Get user profile data
+            user_profile = supabase.table("profiles").select("*").eq("id", auth_response.user.id).execute()
+            
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': auth_response.user.id,
+                    'name': user_profile.data[0]['name'] if user_profile.data else username,
+                    'email': auth_response.user.email
+                }
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid username or password.'
+            })
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Login failed: {str(e)}'
+        })
 
 @app.route('/execute_command', methods=['POST'])
 def execute_command():

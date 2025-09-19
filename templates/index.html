@@ -123,6 +123,33 @@
             }
         }
         
+        // Function to handle login
+        async function handleLogin(username, password) {
+            try {
+                const response = await fetch('/login_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    return `Login successful! Welcome back, ${data.user.name || username}.`;
+                } else {
+                    return `Login failed: ${data.error}`;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                return 'Login failed: Unable to connect to server.';
+            }
+        }
+        
         // Function to handle special commands (model switching, clear, etc.)
         function handleSpecialCommand(command) {
             const cmd = command.toLowerCase();
@@ -298,11 +325,27 @@ Type any key to continue or use !clear to return to terminal.`;
                 return termsText;
             }
             
+            // Handle login command
+            if (cmd.startsWith('!login ')) {
+                const parts = cmd.split(' ');
+                if (parts.length !== 3) {
+                    return 'Usage: !login [username] [password]';
+                }
+                
+                const username = parts[1];
+                const password = parts[2];
+                
+                // Return a promise that will be handled by the main command processor
+                return handleLogin(username, password);
+            }
+            
             // Handle help command
             if (cmd === '!help') {
                 const helpText = `Available Commands:
 
 !help - Show this help message.
+
+!login [username] [password] - Login to your account
 
 !aimodel [model] - Switch AI model (deepseek, llama, gemini). Ex: !aimodel deepseek
 
@@ -433,7 +476,7 @@ Just type your message to chat with the AI!`;
                 input.value = '';
                 
                 // Check if it's a special command (model switching, clear, etc.)
-                const specialResponse = handleSpecialCommand(command);
+                const specialResponse = await handleSpecialCommand(command);
                 
                 if (specialResponse) {
                     // Handle special commands locally
