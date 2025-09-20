@@ -8,4 +8,4 @@ openai>=1.0.0,<2.0.0
 # Production WSGI Server
 gunicorn>=20.1.0,<22.0.0
 
-supabase-py>=1.0.0,<2.0.0
+supabase
