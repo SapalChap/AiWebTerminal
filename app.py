@@ -106,8 +106,32 @@ def register():
                                  success='Registration successful! You can now use the terminal. An email confirmation has been sent. Once confirmed, you can login using !login')
 
         except Exception as e:
-            return render_template('marketing_home.html', page='register', 
-                                 error=f'Registration failed: {str(e)}')
+            error_str = str(e)
+            print(f"Error type: {type(e)}")
+            print(f"Error string: {error_str}")
+            
+            # Check if it's a dictionary-like object or has attributes
+            if hasattr(e, 'message'):
+                error_message = e.message
+            elif isinstance(e, dict):
+                error_message = e.get('message', '')
+            else:
+                error_message = str(e)
+            
+            print(f"Error message: {error_message}")
+            
+            if 'duplicate key value violates unique constraint "profiles_pkey"' in error_message:
+                return render_template('marketing_home.html', page='register', 
+                                     error='Account already exists! Please try logging in instead.')
+            elif 'duplicate key value violates unique constraint' in error_message:
+                return render_template('marketing_home.html', page='register',  
+                                     error='Account already exists! Please try logging in instead using !login in the terminal.')
+            elif 'For security purposes, you can only request this after' in error_message:
+                return render_template('marketing_home.html', page='register', 
+                                     error=f'Registration failed: {e}')
+            else:
+                return render_template('marketing_home.html', page='register', 
+                                     error=f'Registration failed: Please contact support at sapalcdev@gmail.com {e}')
     else:
         # GET request - show registration form
         return render_template('marketing_home.html', page='register')
@@ -123,6 +147,79 @@ def terms():
 @app.route('/contact')
 def contact():
     return render_template('marketing_home.html', page='contact')
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        
+        if not email:
+            return render_template('marketing_home.html', page='forgot_password', 
+                                 error='Email address is required.')
+        
+        if supabase is None:
+            return render_template('marketing_home.html', page='forgot_password', 
+                                 error='Database not available. Please contact support.')
+        
+        try:
+            # Send password reset email via Supabase
+            reset_response = supabase.auth.reset_password_email(email)
+            
+            return render_template('marketing_home.html', page='forgot_password', 
+                                 success='Password reset email sent! Check your inbox and follow the instructions to reset your password.')
+        
+        except Exception as e:
+            error_str = str(e)
+            print(f"Forgot password error: {error_str}")
+            
+            return render_template('marketing_home.html', page='forgot_password', 
+                                 error='Failed to send reset email. Please try again or contact support.')
+    else:
+        # GET request - show forgot password form
+        return render_template('marketing_home.html', page='forgot_password')
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirmPassword', '')
+        
+        if not password or not confirm_password:
+            return render_template('marketing_home.html', page='reset_password', 
+                                 error='All fields are required.')
+        
+        if password != confirm_password:
+            return render_template('marketing_home.html', page='reset_password', 
+                                 error='Passwords do not match.')
+        
+        # Validate password strength
+        validation_error = validate_registration_data('temp', 'temp@temp.com', password, confirm_password)
+        if validation_error:
+            return render_template('marketing_home.html', page='reset_password', 
+                                 error=validation_error)
+        
+        if supabase is None:
+            return render_template('marketing_home.html', page='reset_password', 
+                                 error='Database not available. Please contact support.')
+        
+        try:
+            # Update password using Supabase
+            update_response = supabase.auth.update_user({
+                "password": password
+            })
+            
+            return render_template('marketing_home.html', page='reset_password', 
+                                 success='Password updated successfully! You can now login using !login in the terminal.')
+        
+        except Exception as e:
+            error_str = str(e)
+            print(f"Reset password error: {error_str}")
+            
+            return render_template('marketing_home.html', page='reset_password', 
+                                 error='Failed to update password. Please try again or contact support.')
+    else:
+        # GET request - show reset password form
+        return render_template('marketing_home.html', page='reset_password')
 
 # Terminal application route
 @app.route('/terminal')
