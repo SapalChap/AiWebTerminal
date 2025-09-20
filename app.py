@@ -162,8 +162,13 @@ def forgot_password():
                                  error='Database not available. Please contact support.')
         
         try:
-            # Send password reset email via Supabase
-            reset_response = supabase.auth.reset_password_email(email)
+            # Send password reset email via Supabase with redirect URL
+            reset_response = supabase.auth.reset_password_email(
+                email,
+                {
+                    'redirect_to': 'https://aiwebterminal.onrender.com/reset-password'
+                }
+            )
             
             return render_template('marketing_home.html', page='forgot_password', 
                                  success='Password reset email sent! Check your inbox and follow the instructions to reset your password.')
