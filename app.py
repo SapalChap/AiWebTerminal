@@ -190,6 +190,7 @@ def reset_password():
         password = request.form.get('password', '')
         confirm_password = request.form.get('confirmPassword', '')
         access_token = request.form.get('access_token', '')
+        refresh_token = request.form.get('refresh_token', '')
         
         if not password or not confirm_password:
             return render_template('marketing_home.html', page='reset_password', 
@@ -209,13 +210,13 @@ def reset_password():
             return render_template('marketing_home.html', page='reset_password', 
                                  error='Database not available. Please contact support.')
         
-        if not access_token:
+        if not access_token or not refresh_token:
             return render_template('marketing_home.html', page='reset_password', 
-                                 error='Invalid or missing reset token. Please request a new password reset.')
+                                 error='Invalid or missing reset tokens. Please request a new password reset.')
         
         try:
-            # Set the session using the access token from the reset link
-            supabase.auth.set_session(access_token, '')
+            # Set the session using both access_token and refresh_token from the reset link
+            supabase.auth.set_session(access_token, refresh_token)
             
             # Update password using Supabase with authenticated session
             update_response = supabase.auth.update_user({

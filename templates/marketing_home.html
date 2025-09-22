@@ -776,11 +776,17 @@
                         </div>
                         {% endif %}
                         
-                        <!-- Hidden field to capture access token from URL -->
+                        <!-- Hidden fields to capture tokens from URL -->
                         {% if access_token %}
                         <input type="hidden" name="access_token" value="{{ access_token }}">
                         {% else %}
                         <input type="hidden" name="access_token" id="access_token_field" value="">
+                        {% endif %}
+                        
+                        {% if refresh_token %}
+                        <input type="hidden" name="refresh_token" value="{{ refresh_token }}">
+                        {% else %}
+                        <input type="hidden" name="refresh_token" id="refresh_token_field" value="">
                         {% endif %}
                         
                         <div class="form-group">
@@ -915,20 +921,23 @@
                 return false;
             }
             
-            // Extract access token from URL if not already set
+            // Extract tokens from URL fragment if not already set
             const accessTokenField = document.getElementById('access_token_field');
+            const refreshTokenField = document.getElementById('refresh_token_field');
 
             if (accessTokenField && !accessTokenField.value) {
                 // Get everything after the #
                 const hashParams = new URLSearchParams(window.location.hash.substring(1));
                 const accessToken = hashParams.get('access_token');
+                const refreshToken = hashParams.get('refresh_token');
+                
                 if (accessToken) {
                     accessTokenField.value = accessToken;
                 }
+                if (refreshToken && refreshTokenField) {
+                    refreshTokenField.value = refreshToken;
+                }
             }
-
-        
-            
             // Form will submit to Flask backend automatically
             return true;
         }
@@ -949,7 +958,24 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-
+            // Extract tokens from URL fragment on page load for reset password form
+            const accessTokenField = document.getElementById('access_token_field');
+            const refreshTokenField = document.getElementById('refresh_token_field');
+            
+            if (accessTokenField && !accessTokenField.value) {
+                // Get the fragment part of the URL (after #)
+                const fragment = window.location.hash.substring(1); // Remove the # symbol
+                const urlParams = new URLSearchParams(fragment);
+                const accessToken = urlParams.get('access_token');
+                const refreshToken = urlParams.get('refresh_token');
+                
+                if (accessToken) {
+                    accessTokenField.value = accessToken;
+                }
+                if (refreshToken && refreshTokenField) {
+                    refreshTokenField.value = refreshToken;
+                }
+            }
         });
     </script>
 </body>
