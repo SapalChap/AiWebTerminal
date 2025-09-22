@@ -230,14 +230,18 @@ def reset_password():
             error_str = str(e)
             print(f"Reset password error: {error_str}")
             
-            # Handle specific token-related errors
-            if 'invalid_grant' in error_str or 'token' in error_str.lower():
+            # Handle specific error cases
+            if 'New password should be different from the old password' in error_str:
+                return render_template('marketing_home.html', page='reset_password', 
+                                     error='New password should be different from the old password.',
+                                     access_token=access_token, refresh_token=refresh_token)
+            elif 'invalid_grant' in error_str or 'token' in error_str.lower():
                 return render_template('marketing_home.html', page='reset_password', 
                                      error='Invalid or expired reset token. Please request a new password reset.')
             else:
-                print(error_str)
                 return render_template('marketing_home.html', page='reset_password', 
-                                     error='Failed to update password. Please try again or contact support.')
+                                     error='Failed to update password. Please try again or contact support.',
+                                     access_token=access_token, refresh_token=refresh_token)
                 
     else:
         # GET request - capture access_token from URL parameters
