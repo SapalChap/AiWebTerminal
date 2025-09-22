@@ -189,6 +189,7 @@ def reset_password():
     if request.method == 'POST':
         password = request.form.get('password', '')
         confirm_password = request.form.get('confirmPassword', '')
+        access_token = request.form.get('access_token', '')
         
         if not password or not confirm_password:
             return render_template('marketing_home.html', page='reset_password', 
@@ -208,8 +209,15 @@ def reset_password():
             return render_template('marketing_home.html', page='reset_password', 
                                  error='Database not available. Please contact support.')
         
+        if not access_token:
+            return render_template('marketing_home.html', page='reset_password', 
+                                 error='Invalid or missing reset token. Please request a new password reset.')
+        
         try:
-            # Update password using Supabase
+            # Set the session using the access token from the reset link
+            supabase.auth.set_session(access_token, '')
+            
+            # Update password using Supabase with authenticated session
             update_response = supabase.auth.update_user({
                 "password": password
             })
@@ -221,11 +229,21 @@ def reset_password():
             error_str = str(e)
             print(f"Reset password error: {error_str}")
             
-            return render_template('marketing_home.html', page='reset_password', 
-                                 error='Failed to update password. Please try again or contact support.')
+            # Handle specific token-related errors
+            if 'invalid_grant' in error_str or 'token' in error_str.lower():
+                return render_template('marketing_home.html', page='reset_password', 
+                                     error='Invalid or expired reset token. Please request a new password reset.')
+            else:
+                return render_template('marketing_home.html', page='reset_password', 
+                                     error='Failed to update password. Please try again or contact support.')
     else:
-        # GET request - show reset password form
-        return render_template('marketing_home.html', page='reset_password')
+        # GET request - capture access_token from URL parameters
+        access_token = request.args.get('access_token', '')
+        refresh_token = request.args.get('refresh_token', '')
+        
+        # Show reset password form with token information
+        return render_template('marketing_home.html', page='reset_password', 
+                             access_token=access_token, refresh_token=refresh_token)
 
 # Terminal application route
 @app.route('/terminal')

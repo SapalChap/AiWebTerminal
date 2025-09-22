@@ -776,6 +776,13 @@
                         </div>
                         {% endif %}
                         
+                        <!-- Hidden field to capture access token from URL -->
+                        {% if access_token %}
+                        <input type="hidden" name="access_token" value="{{ access_token }}">
+                        {% else %}
+                        <input type="hidden" name="access_token" id="access_token_field" value="">
+                        {% endif %}
+                        
                         <div class="form-group">
                             <label for="resetPassword">New Password</label>
                             <input type="password" id="resetPassword" name="password" required>
@@ -905,9 +912,31 @@
                 return false;
             }
             
+            // Extract access token from URL if not already set
+            const accessTokenField = document.getElementById('access_token_field');
+            if (accessTokenField && !accessTokenField.value) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const accessToken = urlParams.get('access_token');
+                if (accessToken) {
+                    accessTokenField.value = accessToken;
+                }
+            }
+            
             // Form will submit to Flask backend automatically
             return true;
         }
+
+        // Extract access token from URL on page load for reset password form
+        document.addEventListener('DOMContentLoaded', function() {
+            const accessTokenField = document.getElementById('access_token_field');
+            if (accessTokenField && !accessTokenField.value) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const accessToken = urlParams.get('access_token');
+                if (accessToken) {
+                    accessTokenField.value = accessToken;
+                }
+            }
+        });
 
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]:not([href="#"])').forEach(anchor => {
