@@ -163,12 +163,13 @@ def forgot_password():
         
         try:
             # Send password reset email via Supabase with redirect URL
-            reset_response = supabase.auth.reset_password_email(
+            reset_response = supabase.auth.reset_password_for_email(
                 email,
-                {
+                options={
                     'redirect_to': 'https://aiwebterminal.onrender.com/reset-password'
                 }
             )
+
             
             return render_template('marketing_home.html', page='forgot_password', 
                                  success='Password reset email sent! Check your inbox and follow the instructions to reset your password.')
