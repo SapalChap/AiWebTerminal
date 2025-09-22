@@ -905,6 +905,10 @@
         function handleResetPassword(event) {
             const password = document.getElementById('resetPassword').value;
             const confirmPassword = document.getElementById('resetConfirmPassword').value;
+
+
+            
+
             
             if (password !== confirmPassword) {
                 event.preventDefault();
@@ -914,13 +918,18 @@
             
             // Extract access token from URL if not already set
             const accessTokenField = document.getElementById('access_token_field');
+
             if (accessTokenField && !accessTokenField.value) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const accessToken = urlParams.get('access_token');
+                // Get everything after the #
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
                 if (accessToken) {
                     accessTokenField.value = accessToken;
                 }
             }
+
+            alert(accessTokenField.value);
+
             
             // Form will submit to Flask backend automatically
             return true;
