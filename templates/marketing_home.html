@@ -907,7 +907,6 @@
             const confirmPassword = document.getElementById('resetConfirmPassword').value;
 
 
-            
 
             
             if (password !== confirmPassword) {
@@ -928,24 +927,11 @@
                 }
             }
 
-            alert(accessTokenField.value);
-
+        
             
             // Form will submit to Flask backend automatically
             return true;
         }
-
-        // Extract access token from URL on page load for reset password form
-        document.addEventListener('DOMContentLoaded', function() {
-            const accessTokenField = document.getElementById('access_token_field');
-            if (accessTokenField && !accessTokenField.value) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const accessToken = urlParams.get('access_token');
-                if (accessToken) {
-                    accessTokenField.value = accessToken;
-                }
-            }
-        });
 
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]:not([href="#"])').forEach(anchor => {
