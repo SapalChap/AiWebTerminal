@@ -234,8 +234,10 @@ def reset_password():
                 return render_template('marketing_home.html', page='reset_password', 
                                      error='Invalid or expired reset token. Please request a new password reset.')
             else:
+                print(error_str)
                 return render_template('marketing_home.html', page='reset_password', 
                                      error='Failed to update password. Please try again or contact support.')
+                
     else:
         # GET request - capture access_token from URL parameters
         access_token = request.args.get('access_token', '')
