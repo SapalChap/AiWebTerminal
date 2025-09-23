@@ -93,8 +93,8 @@
         const output = document.getElementById('output');
         const input = document.getElementById('command-input');
         
-        // Track current AI model (default to deepseek)
-        let currentModel = 'deepseek';
+        // Track current AI model (default to llama)
+        let currentModel = 'llama';
         
         // Track last AI response for copying
         let lastResponse = '';
@@ -102,6 +102,13 @@
         // Track ongoing request for cancellation
         let currentAbortController = null;
         let isProcessing = false;
+        
+        // Track user authentication status
+        let isUserLoggedIn = false;
+        let currentUser = null;
+        
+        // Track conversation context for each user
+        let userContexts = {}; // Format: { username: [conversation_history] }
         
         // Global code block counter (increments when user copies code)
         let globalCodeBlockCounter = 0;
@@ -194,7 +201,13 @@
             if (cmd === '!clear') {
                 output.innerHTML = ''; // Clear all chat history
                 lastResponse = ''; // Clear last response too
-                return 'Chat history cleared.';
+                
+                // Clear conversation context for current user
+                if (currentUser && userContexts[currentUser]) {
+                    userContexts[currentUser] = [];
+                }
+                
+                return 'Chat history and conversation context cleared.';
             }
             
             // Handle copy command
@@ -443,7 +456,9 @@ Just type your message to chat with the AI!`;
                     },
                     body: JSON.stringify({ 
                         command: command,
-                        model: currentModel  // Send current model to Flask
+                        model: currentModel,  // Send current model to Flask
+                        context: currentUser ? (userContexts[currentUser] || []) : [],  // Send conversation context
+                        username: currentUser  // Send username for context tracking
                     }),
                     signal: currentAbortController.signal  // Add abort signal
                 });
@@ -499,6 +514,19 @@ Just type your message to chat with the AI!`;
                     responseLine.style.whiteSpace = 'pre-wrap'; // Preserve line breaks and formatting
                     output.appendChild(responseLine);
                 } else {
+                    // Check authentication before AI commands
+                    const authCheck = requireAuthentication(command);
+                    if (authCheck) {
+                        const responseLine = document.createElement('div');
+                        responseLine.textContent = authCheck;
+                        responseLine.style.color = '#ff6666'; // Red color for auth error
+                        responseLine.style.whiteSpace = 'pre-wrap';
+                        output.appendChild(responseLine);
+                        // Scroll to bottom
+                        output.scrollTop = output.scrollHeight;
+                        return;
+                    }
+                    
                     // Show loading indicator for AI requests
                     const loadingLine = document.createElement('div');
                     loadingLine.textContent = 'Processing...';
@@ -511,6 +539,23 @@ Just type your message to chat with the AI!`;
                         
                         // Store response for copying
                         lastResponse = response;
+                        
+                        // Store conversation in user context
+                        if (currentUser && userContexts[currentUser]) {
+                            userContexts[currentUser].push({
+                                role: 'user',
+                                content: command
+                            });
+                            userContexts[currentUser].push({
+                                role: 'assistant', 
+                                content: response
+                            });
+                            
+                            // Keep only last 20 messages to prevent memory issues
+                            if (userContexts[currentUser].length > 20) {
+                                userContexts[currentUser] = userContexts[currentUser].slice(-20);
+                            }
+                        }
                         
                         // Remove loading indicator if it still exists
                         if (loadingLine.parentNode) {
@@ -573,6 +618,14 @@ Just type your message to chat with the AI!`;
             }
         });
 
+        // Function to check if user is authenticated before AI commands
+        function requireAuthentication(command) {
+            if (!isUserLoggedIn) {
+                return `Please create an account first by going to https://aiwebterminal.onrender.com/ and then use !login to login to your account.`;
+            }
+            return null; // User is authenticated, proceed
+        }
+
         // Functions for login modal
         function showLoginModal() {
             document.getElementById('loginModal').style.display = 'block';
@@ -600,6 +653,17 @@ Just type your message to chat with the AI!`;
                 
                 // Close modal and show result in terminal
                 closeLoginModal();
+                
+                // Check if login was successful and update status
+                if (loginResult.includes('successful')) {
+                    isUserLoggedIn = true;
+                    currentUser = username;
+                    
+                    // Initialize conversation context for this user if not exists
+                    if (!userContexts[username]) {
+                        userContexts[username] = [];
+                    }
+                }
                 
                 // Add result to terminal output
                 const responseLine = document.createElement('div');

@@ -328,10 +328,12 @@ def execute_command():
     """
     data = request.get_json()
     command = data.get('command', '')
-    model = data.get('model', 'deepseek')  # Get model from frontend
+    model = data.get('model', 'llama')  # Get model from frontend (default to llama)
+    context = data.get('context', [])  # Get conversation context
+    username = data.get('username', '')  # Get username for context tracking
     
-    # Process the command with the specified model
-    response = get_ai_response(command, model)
+    # Process the command with the specified model and context
+    response = get_ai_response(command, model, context)
     
     return jsonify({
         'success': True,

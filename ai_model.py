@@ -42,31 +42,40 @@ Where <n> is a sequential number starting from 1.
 """
 
 
-def get_ai_response(prompt, model="deepseek"):
+def get_ai_response(prompt, model="llama", context=None):
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=OPENROUTER_API_KEY
     )
 
     # Get the actual model name from the mapping
-    actual_model = MODEL_MAPPING.get(model, MODEL_MAPPING["deepseek"])
+    actual_model = MODEL_MAPPING.get(model, MODEL_MAPPING["llama"])
     
-    # If model not found, fallback to deepseek and log it
+    # If model not found, fallback to llama and log it
     if model not in MODEL_MAPPING:
-        print(f"Warning: Model '{model}' not found, using deepseek instead")
+        print(f"Warning: Model '{model}' not found, using llama instead")
+
+    # Build messages array with context
+    messages = [
+        {
+            "role": "system",
+            "content": system_prompt
+        }
+    ]
+    
+    # Add conversation context if provided
+    if context and isinstance(context, list):
+        messages.extend(context)
+    
+    # Add current user message
+    messages.append({
+        "role": "user", 
+        "content": prompt
+    })
 
     completion = client.chat.completions.create(
         model=actual_model,
-        messages=[
-            {
-                "role": "system",
-                "content": system_prompt
-            },
-            {
-                "role": "user", 
-                "content": prompt
-            }
-        ]
+        messages=messages
     )
     return completion.choices[0].message.content
 
