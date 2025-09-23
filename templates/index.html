@@ -497,7 +497,8 @@ Just type your message to chat with the AI!`;
                 
                 // Add command to output
                 const commandLine = document.createElement('div');
-                commandLine.textContent = `user@aiwebterminal:~$ ${command}`;
+                const username = isUserLoggedIn && currentUser ? currentUser.toLowerCase() : 'user';
+                commandLine.textContent = `${username}@aiwebterminal:~$ ${command}`;
                 output.appendChild(commandLine);
                 
                 // Clear input immediately after capturing command
@@ -586,6 +587,15 @@ Just type your message to chat with the AI!`;
             }
         });
 
+        // Function to update terminal prompt with current user
+        function updateTerminalPrompt() {
+            const promptSpan = document.querySelector('span[style*="white-space: nowrap"]');
+            if (promptSpan) {
+                const username = isUserLoggedIn && currentUser ? currentUser.toLowerCase() : 'user';
+                promptSpan.textContent = `${username}@aiwebterminal:~$ `;
+            }
+        }
+
         // Keep input focused
         input.focus();
         
@@ -663,6 +673,9 @@ Just type your message to chat with the AI!`;
                     if (!userContexts[username]) {
                         userContexts[username] = [];
                     }
+                    
+                    // Update terminal prompt to show real username
+                    updateTerminalPrompt();
                 }
                 
                 // Add result to terminal output
