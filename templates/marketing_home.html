@@ -614,46 +614,58 @@
                             <p><strong>Effective Date: September 2025</strong></p>
                             <br>
                             <h3 style="color: #ffffff;">1. INFORMATION WE COLLECT</h3>
-                            <p>• User Input: Text commands and messages you type</p>
+                            <p>• Account Data: Username and email address (when you create an account)</p>
                             <p>• Technical Data: Browser info, IP address (temporary)</p>
-                            <p>• We DO NOT collect: Names, emails, accounts, files, location</p>
+                            <p>• We DO NOT collect or store: Your messages, commands, conversations, real names, phone numbers, files, or location data</p>
                             <br>
                             <h3 style="color: #ffffff;">2. HOW WE USE YOUR INFORMATION</h3>
-                            <p>• Your messages sent to AI providers (OpenRouter API) for responses</p>
-                            <p>• No permanent storage on our servers</p>
+                            <p>• Username and email used only for account authentication</p>
+                            <p>• Your messages sent directly to AI providers (OpenRouter API) for responses - we don't store them</p>
+                            <p>• No permanent storage of conversations on our servers</p>
                             <p>• Session data cleared when browser closes</p>
                             <br>
                             <h3 style="color: #ffffff;">3. DATA SHARING</h3>
-                            <p>• Messages shared with OpenRouter API and AI models (DeepSeek, Llama, Gemini)</p>
-                            <p>• <strong>Important:</strong> We cannot control how third-party AI providers handle your data</p>
+                            <p>• Your messages go directly to OpenRouter API and AI models (DeepSeek, Llama, Gemini)</p>
+                            <p>• <strong>Important:</strong> We have no control over how OpenRouter or AI model providers use your conversation data</p>
+                            <p>• Account data (username/email) is NOT shared with AI providers or third parties</p>
                             <p>• No sharing with advertisers, marketers, or data brokers by us</p>
                             <p>• Review OpenRouter's privacy policy at <a href="https://openrouter.ai" style="color: #ffffff;">https://openrouter.ai</a></p>
                             <p>• Review individual AI model provider policies for complete data handling information</p>
                             <br>
                             <h3 style="color: #ffffff;">4. DATA STORAGE</h3>
-                            <p>• Conversations exist only in browser session</p>
-                            <p>• Use !clear to delete history anytime</p>
-                            <p>• No server-side conversation storage</p>
+                            <p>• Conversations exist only in your browser session - we don't store them</p>
+                            <p>• Account data (username/email) stored securely in Supabase database</p>
+                            <p>• Passwords are hashed using secure encryption - we cannot see your actual password</p>
+                            <p>• Supabase handles data storage security - we have no control over their data practices</p>
+                            <p>• Use !clear to delete conversation history from your browser anytime</p>
                             <br>
                             <h3 style="color: #ffffff;">5. SECURITY</h3>
                             <p>• HTTPS encryption for all communications</p>
-                            <p>• No user authentication required</p>
+                            <p>• Passwords securely hashed and stored via Supabase</p>
                             <p>• API keys secured server-side</p>
+                            <p>• We never see or store your actual conversations</p>
                             <br>
                             <h3 style="color: #ffffff;">6. YOUR RIGHTS</h3>
-                            <p>• Delete: Use !clear command</p>
+                            <p>• Delete: Use !clear command for browser conversation history</p>
                             <p>• Stop: Use !stop or Ctrl+C</p>
                             <p>• Exit: Use !exit command</p>
-                            <p>• No accounts = no account data to manage</p>
+                            <p>• Account data can be deleted by contacting us</p>
                             <br>
                             <h3 style="color: #ffffff;">7. THIRD-PARTY DATA HANDLING</h3>
                             <p>• <strong>Important Disclaimer:</strong> Your messages are processed by third-party AI services</p>
-                            <p>• We do not control how OpenRouter or AI model providers use your data</p>
+                            <p>• We do not control how OpenRouter or AI model providers use your conversation data</p>
                             <p>• Each AI provider may have different data retention and usage policies</p>
                             <p>• We recommend reviewing their privacy policies before use</p>
                             <p>• Consider the sensitivity of information you share in conversations</p>
                             <br>
-                            <h3 style="color: #ffffff;">8. CONTACT</h3>
+                            <h3 style="color: #ffffff;">8. THIRD-PARTY SERVICES</h3>
+                            <p>• <strong>Supabase:</strong> Handles secure user account storage and authentication only</p>
+                            <p>• <strong>OpenRouter:</strong> Receives and processes your conversation messages directly</p>
+                            <p>• We have no control over how these third-party services handle your data</p>
+                            <p>• Review their privacy policies for complete information</p>
+                            <p>• <strong>Supabase Privacy:</strong> <a href="https://supabase.com/privacy" style="color: #ffffff;">https://supabase.com/privacy</a></p>
+                            <br>
+                            <h3 style="color: #ffffff;">9. CONTACT</h3>
                             <p>For privacy questions, contact: <a href="mailto:sapalcdev@gmail.com" style="color: #ffffff;">sapalcdev@gmail.com</a></p>
                         </div>
                         <a class="btn btn-primary" href="{{ url_for('marketing_home') }}" style="margin-top: 2rem; text-decoration: none; display: inline-block;">Back to Home</a>

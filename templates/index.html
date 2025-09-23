@@ -269,37 +269,58 @@
 Effective Date: September 2025
 
 1. INFORMATION WE COLLECT
-• User Input: Text commands and messages you type
+• Account Data: Username and email address (when you create an account)
 • Technical Data: Browser info, IP address (temporary)
-• We DO NOT collect: Names, emails, accounts, files, location
+• We DO NOT collect or store: Your messages, commands, conversations, real names, phone numbers, files, or location data
 
 2. HOW WE USE YOUR INFORMATION
-• Your messages sent to AI providers (OpenRouter API) for responses
-• No permanent storage on our servers
+• Username and email used only for account authentication
+• Your messages sent directly to AI providers (OpenRouter API) for responses - we don't store them
+• No permanent storage of conversations on our servers
 • Session data cleared when browser closes
 
 3. DATA SHARING
-• Messages shared with OpenRouter API and AI models (DeepSeek, Llama, Gemini)
-• No sharing with advertisers, marketers, or data brokers
+• Your messages go directly to OpenRouter API and AI models (DeepSeek, Llama, Gemini)
+• Important: We have no control over how OpenRouter or AI model providers use your conversation data
+• Account data (username/email) is NOT shared with AI providers or third parties
+• No sharing with advertisers, marketers, or data brokers by us
 • Review OpenRouter's privacy policy at https://openrouter.ai
+• Review individual AI model provider policies for complete data handling information
 
 4. DATA STORAGE
-• Conversations exist only in browser session
-• Use !clear to delete history anytime
-• No server-side conversation storage
+• Conversations exist only in your browser session - we don't store them
+• Account data (username/email) stored securely in Supabase database
+• Passwords are hashed using secure encryption - we cannot see your actual password
+• Supabase handles data storage security - we have no control over their data practices
+• Use !clear to delete conversation history from your browser anytime
 
 5. SECURITY
 • HTTPS encryption for all communications
-• No user authentication required
+• Passwords securely hashed and stored via Supabase
 • API keys secured server-side
+• We never see or store your actual conversations
 
 6. YOUR RIGHTS
-• Delete: Use !clear command
+• Delete: Use !clear command for browser conversation history
 • Stop: Use !stop or Ctrl+C
 • Exit: Use !exit command
-• No accounts = no account data to manage
+• Account data can be deleted by contacting us
 
-7. CONTACT
+7. THIRD-PARTY DATA HANDLING
+• Important Disclaimer: Your messages are processed by third-party AI services
+• We do not control how OpenRouter or AI model providers use your conversation data
+• Each AI provider may have different data retention and usage policies
+• We recommend reviewing their privacy policies before use
+• Consider the sensitivity of information you share in conversations
+
+8. THIRD-PARTY SERVICES
+• Supabase: Handles secure user account storage and authentication only
+• OpenRouter: Receives and processes your conversation messages directly
+• We have no control over how these third-party services handle your data
+• Review their privacy policies for complete information
+• Supabase Privacy: https://supabase.com/privacy
+
+9. CONTACT
 For privacy questions, contact: sapalcdev@gmail.com
 
 Type any key to continue or use !clear to return to terminal.`;
