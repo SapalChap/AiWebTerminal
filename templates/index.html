@@ -68,6 +68,27 @@
         </div>
     </div>
 
+    <!-- Login Popup Modal -->
+    <div id="loginModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8);">
+        <div style="background-color: #111; margin: 10% auto; padding: 20px; border: 1px solid #333; width: 400px; border-radius: 5px;">
+            <div style="color: #fff; margin-bottom: 20px;">
+                <h3 style="color: #fff;">Login to AI Web Terminal</h3>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="color: #fff; display: block; margin-bottom: 5px;">Username:</label>
+                <input type="text" id="loginUsername" style="width: 100%; padding: 8px; background: #222; border: 1px solid #555; color: #fff; border-radius: 3px; font-family: 'Courier New', monospace;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="color: #fff; display: block; margin-bottom: 5px;">Password:</label>
+                <input type="password" id="loginPassword" style="width: 100%; padding: 8px; background: #222; border: 1px solid #555; color: #fff; border-radius: 3px; font-family: 'Courier New', monospace;">
+            </div>
+            <div style="text-align: right;">
+                <button onclick="closeLoginModal()" style="background: #666; color: #fff; border: none; padding: 8px 16px; margin-right: 10px; border-radius: 3px; cursor: pointer; font-family: 'Courier New', monospace;">Cancel</button>
+                <button onclick="submitLogin()" style="background: #0066cc; color: #fff; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-family: 'Courier New', monospace;">Login</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const output = document.getElementById('output');
         const input = document.getElementById('command-input');
@@ -325,18 +346,10 @@ Type any key to continue or use !clear to return to terminal.`;
                 return termsText;
             }
             
-            // Handle login command
-            if (cmd.startsWith('!login ')) {
-                const parts = cmd.split(' ');
-                if (parts.length !== 3) {
-                    return 'Usage: !login [username] [password]';
-                }
-                
-                const username = parts[1];
-                const password = parts[2];
-                
-                // Return a promise that will be handled by the main command processor
-                return handleLogin(username, password);
+            // Handle login command - show popup
+            if (cmd === '!login') {
+                showLoginModal();
+                return 'Login popup opened. Enter your credentials.';
             }
             
             // Handle help command
@@ -345,7 +358,7 @@ Type any key to continue or use !clear to return to terminal.`;
 
 !help - Show this help message.
 
-!login [username] [password] - Login to your account
+!login - Open login popup to enter your credentials
 
 !aimodel [model] - Switch AI model (deepseek, llama, gemini). Ex: !aimodel deepseek
 
@@ -557,6 +570,56 @@ Just type your message to chat with the AI!`;
                     output.scrollTop = output.scrollHeight;
                 }
                 // If not processing, let Ctrl+C work normally (copy to clipboard)
+            }
+        });
+
+        // Functions for login modal
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+            document.getElementById('loginUsername').focus();
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        async function submitLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+            
+            try {
+                // Show loading in modal
+                const loginResult = await handleLogin(username, password);
+                
+                // Close modal and show result in terminal
+                closeLoginModal();
+                
+                // Add result to terminal output
+                const responseLine = document.createElement('div');
+                responseLine.textContent = loginResult;
+                responseLine.style.color = loginResult.includes('successful') ? '#00ff00' : '#ff6666';
+                output.appendChild(responseLine);
+                
+                // Scroll to bottom
+                output.scrollTop = output.scrollHeight;
+            } catch (error) {
+                alert('Login failed: Unable to connect to server');
+                console.error('Login error:', error);
+            }
+        }
+
+        // Allow Enter key to submit login in modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.getElementById('loginModal').style.display === 'block') {
+                e.preventDefault();
+                submitLogin();
             }
         });
     </script>
