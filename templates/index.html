@@ -500,6 +500,7 @@ Just type your message to chat with the AI!`;
                 const username = isUserLoggedIn && currentUser ? currentUser.toLowerCase() : 'user';
                 commandLine.textContent = `${username}@aiwebterminal:~$ ${command}`;
                 output.appendChild(commandLine);
+                autoScrollToBottom();
                 
                 // Clear input immediately after capturing command
                 input.value = '';
@@ -514,6 +515,7 @@ Just type your message to chat with the AI!`;
                     responseLine.style.color = '#00ff00'; // Green color for system messages
                     responseLine.style.whiteSpace = 'pre-wrap'; // Preserve line breaks and formatting
                     output.appendChild(responseLine);
+                    autoScrollToBottom();
                 } else {
                     // Check authentication before AI commands
                     const authCheck = requireAuthentication(command);
@@ -523,8 +525,7 @@ Just type your message to chat with the AI!`;
                         responseLine.style.color = '#ff6666'; // Red color for auth error
                         responseLine.style.whiteSpace = 'pre-wrap';
                         output.appendChild(responseLine);
-                        // Scroll to bottom
-                        output.scrollTop = output.scrollHeight;
+                        autoScrollToBottom();
                         return;
                     }
                     
@@ -568,6 +569,7 @@ Just type your message to chat with the AI!`;
                         responseLine.textContent = response;
                         responseLine.style.whiteSpace = 'pre-wrap'; // Preserve formatting
                         output.appendChild(responseLine);
+                        autoScrollToBottom();
                     } catch (error) {
                         // Remove loading indicator if it still exists
                         if (loadingLine.parentNode) {
@@ -579,13 +581,21 @@ Just type your message to chat with the AI!`;
                         errorLine.textContent = 'Request was cancelled or failed.';
                         errorLine.style.color = '#ff6666';
                         output.appendChild(errorLine);
+                        autoScrollToBottom();
                     }
                 }
                 
-                // Scroll to bottom
-                output.scrollTop = output.scrollHeight;
+                autoScrollToBottom();
             }
         });
+
+        // Function to auto-scroll terminal to bottom
+        function autoScrollToBottom() {
+            // Use setTimeout to ensure DOM is updated before scrolling
+            setTimeout(() => {
+                output.scrollTop = output.scrollHeight;
+            }, 10);
+        }
 
         // Function to update terminal prompt with current user
         function updateTerminalPrompt() {
@@ -683,9 +693,7 @@ Just type your message to chat with the AI!`;
                 responseLine.textContent = loginResult;
                 responseLine.style.color = loginResult.includes('successful') ? '#00ff00' : '#ff6666';
                 output.appendChild(responseLine);
-                
-                // Scroll to bottom
-                output.scrollTop = output.scrollHeight;
+                autoScrollToBottom();
             } catch (error) {
                 alert('Login failed: Unable to connect to server');
                 console.error('Login error:', error);
