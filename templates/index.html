@@ -383,7 +383,8 @@ Type any key to continue or use !clear to return to terminal.`;
             // Handle login command - show popup
             if (cmd === '!login') {
                 showLoginModal();
-                return 'Login popup opened. Enter your credentials.';
+                // FIXED: Don't return a message here since the modal will handle the success/failure message
+                return null; // Changed from: return 'Login popup opened. Enter your credentials.';
             }
             
             // Handle help command
@@ -730,8 +731,16 @@ Just type your message to chat with the AI!`;
         // Allow Enter key to submit login in modal
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && document.getElementById('loginModal').style.display === 'block') {
-                e.preventDefault();
-                submitLogin();
+                // FIXED: Only process Enter if one of the modal input fields is focused
+                // This prevents the Enter keypress that opened the modal from immediately triggering submission
+                const activeElement = document.activeElement;
+                const usernameField = document.getElementById('loginUsername');
+                const passwordField = document.getElementById('loginPassword');
+                
+                if (activeElement === usernameField || activeElement === passwordField) {
+                    e.preventDefault();
+                    submitLogin();
+                }
             }
         });
     </script>
