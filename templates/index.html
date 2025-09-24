@@ -677,7 +677,12 @@ Just type your message to chat with the AI!`;
         // Functions for login modal
         function showLoginModal() {
             document.getElementById('loginModal').style.display = 'block';
-            document.getElementById('loginUsername').focus();
+            
+            // FIXED: Add a small delay before focusing and enabling Enter key processing
+            // This prevents the Enter keypress that opened the modal from immediately triggering submission
+            setTimeout(() => {
+                document.getElementById('loginUsername').focus();
+            }, 100); // Small delay to let the Enter keypress finish processing
         }
 
         function closeLoginModal() {
@@ -732,14 +737,22 @@ Just type your message to chat with the AI!`;
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && document.getElementById('loginModal').style.display === 'block') {
                 // FIXED: Only process Enter if one of the modal input fields is focused
-                // This prevents the Enter keypress that opened the modal from immediately triggering submission
+                // AND add a check to ensure the modal has been open for at least 200ms
                 const activeElement = document.activeElement;
                 const usernameField = document.getElementById('loginUsername');
                 const passwordField = document.getElementById('loginPassword');
                 
+                // Only submit if an input field is focused (not just any element)
                 if (activeElement === usernameField || activeElement === passwordField) {
-                    e.preventDefault();
-                    submitLogin();
+                    // Additional safety: check if the focused field has been focused for a moment
+                    // This prevents immediate submission when the modal just opened
+                    setTimeout(() => {
+                        if (document.getElementById('loginModal').style.display === 'block' && 
+                            (document.activeElement === usernameField || document.activeElement === passwordField)) {
+                            e.preventDefault();
+                            submitLogin();
+                        }
+                    }, 50); // Very small delay to ensure we're not processing the original Enter
                 }
             }
         });
