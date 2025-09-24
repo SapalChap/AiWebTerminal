@@ -383,8 +383,7 @@ Type any key to continue or use !clear to return to terminal.`;
             // Handle login command - show popup
             if (cmd === '!login') {
                 showLoginModal();
-                // FIXED: Don't return a message here since the modal will handle the success/failure message
-                return null; // Changed from: return 'Login popup opened. Enter your credentials.';
+                return 'Login popup opened. Please enter your credentials.';
             }
             
             // Handle help command
