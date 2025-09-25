@@ -520,7 +520,7 @@ Just type your message to chat with the AI!`;
                 // Add command to output
                 const commandLine = document.createElement('div');
                 const username = isUserLoggedIn && currentUser ? currentUser.toLowerCase() : 'user';
-                commandLine.textContent = `${username}@aiwebterminal:~$ ${command}`;
+                commandLine.innerHTML = `${username}@aiwebterminal:~$ <span style="color: #00ff00;">${command}</span>`;
                 output.appendChild(commandLine);
                 autoScrollToBottom();
                 
@@ -630,6 +630,7 @@ Just type your message to chat with the AI!`;
             if (promptSpan) {
                 const username = isUserLoggedIn && currentUser ? currentUser.toLowerCase() : 'user';
                 promptSpan.textContent = `${username}@aiwebterminal:~$ `;
+                promptSpan.style.color = '#00ff00'; // Ensure green color is maintained
             }
         }
 
