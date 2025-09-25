@@ -51,6 +51,10 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+
+        .terminal-prompt {
+            color: #00ff00 !important;
+        }
     </style>
 </head>
 <body>
@@ -63,7 +67,7 @@
         <div>Type !help for available commands</div>
         <div id="output"></div>
         <div style="display: flex; align-items: center; flex-wrap: nowrap;">
-            <span style="white-space: nowrap; margin-right: 5px; color: #00ff00;">user@aiwebterminal:~$ </span>
+            <span class="terminal-prompt" style="white-space: nowrap; margin-right: 5px;">user@aiwebterminal:~$ </span>
             <input type="text" id="command-input" style="background: transparent; border: none; color: #fff; font-family: 'Courier New', monospace; font-size: 14px; outline: none; flex: 1; min-width: 200px;">
         </div>
     </div>
@@ -520,7 +524,7 @@ Just type your message to chat with the AI!`;
                 // Add command to output
                 const commandLine = document.createElement('div');
                 const username = isUserLoggedIn && currentUser ? currentUser.toLowerCase() : 'user';
-                commandLine.innerHTML = `<span style="color: #00ff00;">${username}@aiwebterminal:~$ </span><span style="color: #fff;">${command}</span>`;
+                commandLine.innerHTML = `<span class="terminal-prompt">${username}@aiwebterminal:~$ </span><span style="color: #fff;">${command}</span>`;
                 output.appendChild(commandLine);
                 autoScrollToBottom();
                 
@@ -626,11 +630,10 @@ Just type your message to chat with the AI!`;
 
         // Function to update terminal prompt with current user
         function updateTerminalPrompt() {
-            const promptSpan = document.querySelector('span[style*="white-space: nowrap"]');
+            const promptSpan = document.querySelector('.terminal-prompt');
             if (promptSpan) {
                 const username = isUserLoggedIn && currentUser ? currentUser.toLowerCase() : 'user';
                 promptSpan.textContent = `${username}@aiwebterminal:~$ `;
-                promptSpan.style.color = '#00ff00'; // Ensure green color is maintained
             }
         }
 
