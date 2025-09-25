@@ -63,7 +63,7 @@
         <div>Type !help for available commands</div>
         <div id="output"></div>
         <div style="display: flex; align-items: center; flex-wrap: nowrap;">
-            <span style="white-space: nowrap; margin-right: 5px;">user@aiwebterminal:~$ </span>
+            <span style="white-space: nowrap; margin-right: 5px; color: #00ff00;">user@aiwebterminal:~$ </span>
             <input type="text" id="command-input" style="background: transparent; border: none; color: #fff; font-family: 'Courier New', monospace; font-size: 14px; outline: none; flex: 1; min-width: 200px;">
         </div>
     </div>
@@ -520,7 +520,7 @@ Just type your message to chat with the AI!`;
                 // Add command to output
                 const commandLine = document.createElement('div');
                 const username = isUserLoggedIn && currentUser ? currentUser.toLowerCase() : 'user';
-                commandLine.innerHTML = `${username}@aiwebterminal:~$ <span style="color: #00ff00;">${command}</span>`;
+                commandLine.innerHTML = `<span style="color: #00ff00;">${username}@aiwebterminal:~$ </span><span style="color: #fff;">${command}</span>`;
                 output.appendChild(commandLine);
                 autoScrollToBottom();
                 
