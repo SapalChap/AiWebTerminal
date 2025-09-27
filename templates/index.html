@@ -116,6 +116,11 @@
         
         // Global code block counter (increments when user copies code)
         let globalCodeBlockCounter = 0;
+        
+        // Command history tracking (limited to last 5 commands)
+        let commandHistory = [];           // Array to store last 5 entered commands
+        let historyIndex = -1;            // Current position in history (-1 means not browsing history)
+        let currentInput = '';            // Store current input when browsing history
 
         // Function to extract specific code block from response
         function extractCodeBlock(responseText, blockNumber) {
@@ -211,7 +216,12 @@
                     userContexts[currentUser] = [];
                 }
                 
-                return 'Chat history and conversation context cleared.';
+                // Clear the 5-command history as well
+                commandHistory = [];
+                historyIndex = -1;
+                currentInput = '';
+                
+                return 'Chat history, conversation context, and command history cleared.';
             }
             
             // Handle copy command
@@ -516,10 +526,72 @@ Just type your message to chat with the AI!`;
         
         // Handle Enter key press
         input.addEventListener('keydown', async (e) => {
+            // Handle Up Arrow - Navigate to previous (older) command
+            if (e.key === 'ArrowUp') {
+                e.preventDefault(); // Prevent cursor movement
+                
+                // If we're not browsing history yet, store current input
+                if (historyIndex === -1) {
+                    currentInput = input.value;
+                    historyIndex = 0; // Start at most recent command
+                } else if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++; // Move to older command
+                }
+                
+                // Show command from history if we have commands
+                if (commandHistory.length > 0 && historyIndex < commandHistory.length) {
+                    input.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                    // Move cursor to end of input
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
+                return;
+            }
+            
+            // Handle Down Arrow - Navigate to next (newer) command or return to current input
+            if (e.key === 'ArrowDown') {
+                e.preventDefault(); // Prevent cursor movement
+                
+                if (historyIndex > 0) {
+                    // Move to newer command
+                    historyIndex--;
+                    input.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                    // Move cursor to end of input
+                    input.setSelectionRange(input.value.length, input.value.length);
+                } else if (historyIndex === 0) {
+                    // Return to current input (what user was typing before browsing history)
+                    historyIndex = -1;
+                    input.value = currentInput;
+                    // Move cursor to end of input
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
+                // If historyIndex is already -1, do nothing (already at current input)
+                return;
+            }
+            
+            // Handle any other key - reset history browsing
+            if (historyIndex !== -1 && e.key !== 'ArrowUp' && e.key !== 'ArrowDown') {
+                historyIndex = -1;
+                currentInput = '';
+            }
+            
             if (e.key === 'Enter') {
                 const command = input.value.trim();
                 
                 if (command === '') return;
+                
+                // Add command to history (avoid duplicates of the last command)
+                if (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== command) {
+                    commandHistory.push(command);
+                    
+                    // Limit history to last 5 commands only
+                    if (commandHistory.length > 5) {
+                        commandHistory = commandHistory.slice(-5); // Keep only the last 5
+                    }
+                }
+                
+                // Reset history browsing state
+                historyIndex = -1;
+                currentInput = '';
                 
                 // Add command to output
                 const commandLine = document.createElement('div');
